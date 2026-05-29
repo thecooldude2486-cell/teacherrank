@@ -57,6 +57,21 @@ export default function Layout() {
               <span className="text-xl font-semibold tracking-tight" style={{ fontFamily: "Fraunces, serif" }}>TeacherRank</span>
             </Link>
           </div>
+          <nav className="hidden md:flex items-center gap-1">
+            {links.map(l => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                onClick={() => scrollToSection(l.id)}
+                className={({ isActive }) => cn(
+                  "px-3 py-2 rounded-full text-sm font-medium transition-colors",
+                  isActive ? "bg-primary-soft text-primary" : "text-foreground/75 hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
           <button
             className="inline-flex items-center gap-2 pl-3 pr-4 py-2 rounded-full bg-secondary hover:bg-primary-soft border border-border/50 text-sm font-medium transition-colors"
             onClick={() => setOpen(!open)}
