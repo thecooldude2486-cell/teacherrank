@@ -239,7 +239,68 @@ function AdminInner() {
               />
             ))
           )}
+
+          {tab === "users" && (
+            <div className="p-5 md:p-6 space-y-4">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={userQuery}
+                  onChange={e => setUserQuery(e.target.value)}
+                  placeholder="Search by name or email…"
+                  className="w-full pl-9 pr-3 py-2.5 bg-secondary/60 border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+              </div>
+              {(() => {
+                const q = userQuery.trim().toLowerCase();
+                const filtered = q
+                  ? users.filter(u => (u.display_name ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q))
+                  : users;
+                if (filtered.length === 0) return <EmptyState label="No users match your search." />;
+                return (
+                  <div className="divide-y divide-border/40 border border-border/60 rounded-2xl overflow-hidden">
+                    {filtered.map(u => (
+                      <div key={u.id} className="p-4 flex items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-primary-soft text-primary font-bold flex items-center justify-center shrink-0">
+                            {initials(u.display_name || u.email)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold truncate">{u.display_name || "(no name)"}</span>
+                              {u.is_admin && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-soft text-primary text-[10px] font-semibold uppercase tracking-wide">
+                                  <ShieldCheck className="w-3 h-3" /> Admin
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                          </div>
+                        </div>
+                        {u.is_admin ? (
+                          <button
+                            onClick={() => setAdmin(u.id, false)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-foreground/80 border border-border bg-card hover:bg-secondary transition-colors"
+                          >
+                            <X className="w-4 h-4" /> Remove admin
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setAdmin(u.id, true)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4" /> Make admin
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
+
 
         <div className="p-4 bg-secondary/30 border-t border-border/50 flex justify-center">
           <button
