@@ -46,7 +46,7 @@ const slides = [
   },
 ];
 
-const PORTAL_URL = "https://fs.det.nsw.edu.au/adfs/ls/?client-request-id=8437ba45-912f-4be9-565c-0080050000ff&username=&wa=wsignin1.0&wtrealm=urn%3afederation%3aMicrosoftOnline&wctx=estsredirect%3d2%26estsrequest%3drQQIARAA42Kw0skoKSmw0tdPK9ZLSS3Ryysu10tNKdVLLNVPTEkr1i9OLSrLTE4t1i8pKi0uKRLiEnDdZd6iP_Gld1gMQwMrA8P_WYx8qBpXMSqBzCzGbWhOsf4FRsYXjIy3mHjCi91SU1KLEksy8_NmMaskGZmap1iaJ-kapiSa65okm6TqWpqZmeqamZmmpBoaGKUYGhpvYlYxME00SDWzTNQ1MbRI1DUxTzbUtUw2MtW1NLYwNzIzTEqztDS8wML1ioXHgNWKg4NLgF-CXYHhBwvjIlYhLgGds5Hl_5ZZuyx79i0r-zkvwylW_TQXN-9sV2-niDSj1Oxk90LXdN-SnJDS0vKkiqg0E4tkPyePyPDktEIL90hbCyvDCWw8p9gYPrAxdrAzzGJnOMDJeICX4Qffp6Md7QtWrn_vsUGA4YEAwwNBhh-CDQ0OHUIMAA2#";
+const PORTAL_URL = "https://portal.education.nsw.gov.au/studentPortal/index.html";
 
 
 export default function Auth() {
