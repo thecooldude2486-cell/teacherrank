@@ -28,6 +28,8 @@ function AdminInner() {
   const [tab, setTab] = useState<Tab>("pending-teachers");
   const [pendingT, setPT] = useState<any[]>([]);
   const [pendingS, setPS] = useState<any[]>([]);
+  const [pendingTR, setPTR] = useState<any[]>([]);
+  const [pendingSR, setPSR] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
@@ -49,8 +51,6 @@ function AdminInner() {
 
   useEffect(() => { if (isAdmin) reload(); }, [isAdmin]);
 
-
-  useEffect(() => { if (isAdmin) reload(); }, [isAdmin]);
 
   if (loading) return <div className="container py-16 text-center text-sm text-muted-foreground">Loading…</div>;
   if (!isAdmin) {
