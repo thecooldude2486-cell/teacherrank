@@ -59,14 +59,7 @@ export default function Layout() {
           </div>
           <button
             className="inline-flex items-center gap-2 pl-3 pr-4 py-2 rounded-full bg-secondary hover:bg-primary-soft border border-border/50 text-sm font-medium transition-colors"
-            {user ? (
-              <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground grid place-items-center text-xs font-bold">
-                {(user.email ?? "?").charAt(0).toUpperCase()}
-              </span>
-            ) : (
-              <Menu className="w-4 h-4" />
-            )}
-            <span>Menu</span>
+            onClick={() => setOpen(!open)}
             aria-label="Menu"
             aria-expanded={open}
           >
