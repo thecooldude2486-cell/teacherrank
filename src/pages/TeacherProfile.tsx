@@ -66,7 +66,7 @@ export default function TeacherProfile() {
     toast.success("Thanks — this review has been flagged for moderator review.");
   };
 
-  };
+
 
   return (
     <div className="container py-10">
