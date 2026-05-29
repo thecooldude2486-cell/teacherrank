@@ -1,13 +1,37 @@
 ## Goal
-After a successful login or signup, send the user to the NSW Department of Education student portal instead of the in-app `/account` page.
+Make the post-auth redirect to `https://student.det.nsw.edu.au/` work even when the app is rendered inside an iframe (e.g. the Lovable preview), where the portal's `X-Frame-Options` causes "refused to connect".
 
 ## Changes
 
 **`src/pages/Auth.tsx`**
-- Replace the post-auth `nav("/account")` call inside `submit()` with a full-page redirect to `https://student.det.nsw.edu.au/` using `window.location.assign(...)`.
-- Replace the `useEffect` that currently runs `nav("/account")` when a session is already detected with the same external redirect, so an already-logged-in visitor landing on `/auth` is also sent to the portal.
 
-No other files need to change — `AuthGate`, `useAuth`, and routing stay the same.
+Add a small helper inside the file and use it in place of both existing `window.location.assign("https://student.det.nsw.edu.au/")` calls (lines 60 and 94):
 
-## Note
-If you'd prefer a different portal URL (e.g. the staff portal `https://portal.det.nsw.edu.au/` or the parent portal), tell me which and I'll swap it in.
+```ts
+const PORTAL_URL = "https://student.det.nsw.edu.au/";
+
+function redirectToPortal() {
+  try {
+    // Break out of any iframe (works on the published site)
+    if (window.top && window.top !== window.self) {
+      window.top.location.href = PORTAL_URL;
+      return;
+    }
+  } catch {
+    // Cross-origin iframe (Lovable preview) — accessing window.top.location throws.
+    // Fall through to opening in a new tab.
+  }
+  const opened = window.open(PORTAL_URL, "_blank", "noopener");
+  if (!opened) window.location.href = PORTAL_URL;
+}
+```
+
+Then:
+- Line 60 becomes: `useEffect(() => { if (user) redirectToPortal(); }, [user]);`
+- Line 94 becomes: `redirectToPortal();`
+
+No other files change.
+
+## Result
+- Published site: full-page navigation to the DET student portal.
+- Lovable preview: portal opens in a new browser tab (preview can't legally navigate to it because of the portal's iframe block).

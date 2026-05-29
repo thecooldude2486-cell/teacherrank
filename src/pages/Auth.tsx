@@ -46,6 +46,21 @@ const slides = [
   },
 ];
 
+const PORTAL_URL = "https://student.det.nsw.edu.au/";
+
+function redirectToPortal() {
+  try {
+    if (window.top && window.top !== window.self) {
+      window.top.location.href = PORTAL_URL;
+      return;
+    }
+  } catch {
+    // cross-origin iframe — fall through
+  }
+  const opened = window.open(PORTAL_URL, "_blank", "noopener");
+  if (!opened) window.location.href = PORTAL_URL;
+}
+
 export default function Auth() {
   const nav = useNavigate();
   const { user } = useAuth();
@@ -57,7 +72,7 @@ export default function Auth() {
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  useEffect(() => { if (user) window.location.assign("https://student.det.nsw.edu.au/"); }, [user]);
+  useEffect(() => { if (user) redirectToPortal(); }, [user]);
 
   useEffect(() => {
     if (paused) return;
@@ -91,7 +106,7 @@ export default function Auth() {
         if (error) throw error;
         toast.success("Welcome back!");
       }
-      window.location.assign("https://student.det.nsw.edu.au/");
+      redirectToPortal();
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
