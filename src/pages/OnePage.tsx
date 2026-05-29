@@ -52,9 +52,11 @@ const sections: Section[] = [
 export default function OnePage() {
   const { hash, pathname } = useLocation();
   const { user } = useAuth();
+  const gatedIds = new Set(["submit", "submit-school", "add-teacher", "admin"]);
   const visibleSections = sections.filter(s => {
     if (s.id === "auth") return !user;
     if (s.id === "account") return !!user;
+    if (gatedIds.has(s.id)) return !!user;
     return true;
   });
   const teacherMatch = useMatch("/teachers/:id");
