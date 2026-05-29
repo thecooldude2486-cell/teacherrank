@@ -8,6 +8,9 @@ import {
 } from "@/lib/schoolsData";
 import { teachers as allTeachers, schools as mockSchools } from "@/lib/mockData";
 import { StarRating } from "@/components/StarRating";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
 
 
 function ScoreTile({ label, value }: { label: string; value: number }) {
