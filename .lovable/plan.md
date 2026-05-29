@@ -1,22 +1,21 @@
-## Problem
+## Change
 
-After login/signup, the DET portal sometimes fails to open in a new tab on desktop. Browsers block `window.open(...)` unless it happens **synchronously inside a user gesture** (click/submit). Today the open happens *after* `await supabase.auth.signIn...` resolves — by then the gesture is gone, so Chrome/Safari/Firefox treat it as a popup and block it.
+Swap the post-login redirect URL in `src/pages/Auth.tsx`.
 
-## Fix (single file: `src/pages/Auth.tsx`)
+**Before:**
+```ts
+const PORTAL_URL = "https://student.det.nsw.edu.au/";
+```
 
-1. **Open the tab synchronously in the submit handler, before any `await`.**
-   - At the top of `submit` (after the email check), call `const portalTab = window.open("about:blank", "_blank")`. This reserves a real user-gesture tab.
-   - Run sign-in / sign-up as today.
-   - On success: `portalTab.location.href = PORTAL_URL`. On failure: `portalTab.close()`.
-   - If `portalTab` is null (popup blocker still refused), fall back to navigating the current window: `window.location.href = PORTAL_URL`.
+**After:**
+```ts
+const PORTAL_URL = "https://fs.det.nsw.edu.au/adfs/ls/?client-request-id=94fc882d-5ca4-4a5b-f75d-0080030000f9&username=&wa=wsignin1.0&wtrealm=urn%3afederation%3aMicrosoftOnline&wctx=estsredirect%3d2%26estsrequest%3drQQIARAA42Kw0skoKSmw0tdPK9ZLSS3Ryysu10tNKdVLLNVPTEkr1i9OLSrLTE4t1i8pKi0uKRLiEtDt-DNlSUy01_dYhgZmBoafsxj5UDWuYlQCmVmM29CcYv0LjIwvGBlvMfGEF7ulpqQWJZZk5ufNYlZJTEkxMTQzN9O1TDE31zUxtTTTTbQwT9M1SzUwTkwxNjUwSbXYxKxiYJpokGpmmahrYmiRqGtinmyoa5lsZKpraWxhbmRmmJRmaWl4gYXrFQuPAasVBweXAL8EuwLDDxbGRaxCXAJHjscK1BadclugHHk6YysvwylW_TQXN-9sV2-niDSj1Oxk90LXdN-SnJDS0vKkiqg0E4tkPyePyPDktEIL90hbCyvDCWw8p9gYPrAxdrAzzGJnOMDJeICX4QffpssPpvSvXP_eY4MAwwMBhgeCDD8EGxocOoQYAA2#";
+```
 
-2. **Remove the post-auth `redirectToPortal()` and the `useEffect` that watches `user`.**
-   - Those run after the gesture window has already closed, which is why the new tab is being blocked. The synchronous `window.open` in step 1 replaces both.
+No other code changes. Behavior is identical — on successful login/signup the new tab (already opened synchronously by the submit handler) navigates to this URL.
 
-3. **Drop the unused `redirectToPortal()` / `window.top` logic** — we always want a new tab, no iframe-breakout needed.
+## Notes
 
-No other files change. No backend/auth changes.
-
-## Why this works
-
-Browsers only allow `window.open` when called directly from a click/submit handler in the same tick. Opening `about:blank` first (still inside the gesture) and then setting its `location.href` after the async auth call is the standard pattern for "open a new tab after an async operation" and is not blocked by default popup blockers.
+- This is the NSW DoE ADFS sign-in URL with a federated Microsoft Online round-trip. Each `client-request-id` is a fresh tracking GUID; the link will still work for other users, but it's tied to this one session in the query string. That's normally fine — DoE accepts it as a generic ADFS entry point.
+- The hash fragment `#` at the end is preserved verbatim.
+- Sandbox DNS can't reach `fs.det.nsw.edu.au` from here, so I can't HTTP-probe it, but the domain is the real DoE federation server and will load in a normal browser tab. It does not allow iframing (same as the student portal), which is why we already open it in a new tab.
