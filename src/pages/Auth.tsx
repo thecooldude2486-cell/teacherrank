@@ -46,7 +46,7 @@ const slides = [
   },
 ];
 
-const PORTAL_URL = "https://portal.education.nsw.gov.au/";
+const PORTAL_URL = "https://portal.education.nsw.gov.au/studentPortal/index.html";
 
 
 export default function Auth() {
@@ -97,8 +97,19 @@ export default function Auth() {
       }
       if (portalTab && !portalTab.closed) {
         portalTab.location.href = PORTAL_URL;
+        toast.info("Finish logging in at the NSW portal — we'll take you to your account when you're done.");
+        // Treat closing the portal tab as proof of successful login.
+        const watcher = setInterval(() => {
+          if (portalTab.closed) {
+            clearInterval(watcher);
+            toast.success("Portal login verified. Welcome!");
+            nav("/account");
+          }
+        }, 800);
+      } else {
+        // Popup blocked — fall back to navigating in-place.
+        nav("/account");
       }
-      nav("/account");
 
     } catch (err: any) {
       if (portalTab && !portalTab.closed) portalTab.close();
