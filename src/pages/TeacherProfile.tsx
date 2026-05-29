@@ -7,6 +7,9 @@ import { StarRating } from "@/components/StarRating";
 import { Flag, MapPin, MessageSquareHeart, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
 
 function ScoreTile({ label, value }: { label: string; value: number }) {
   return (
