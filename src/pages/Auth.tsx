@@ -71,8 +71,7 @@ export default function Auth() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAllowedEduEmail(email)) {
-      toast.error("Use your @education.nsw.gov.au address. Redirecting to the DoE portal…");
-      setTimeout(() => redirectToDoeLogin(), 1500);
+      toast.error("Use your name.surname@education.nsw.gov.au address to continue.");
       return;
     }
     // Open the new tab synchronously inside the user gesture so popup blockers allow it.
