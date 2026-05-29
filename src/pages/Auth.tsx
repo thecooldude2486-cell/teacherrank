@@ -70,10 +70,12 @@ export default function Auth() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAllowedEduEmail(email)) {
+    // Only enforce the education email check on signup. Existing accounts can log in directly.
+    if (mode === "signup" && !isAllowedEduEmail(email)) {
       toast.error("Use your name.surname@education.nsw.gov.au address to continue.");
       return;
     }
+
     // Open the new tab synchronously inside the user gesture so popup blockers allow it.
     const portalTab = window.open("about:blank", "_blank");
     setBusy(true);
