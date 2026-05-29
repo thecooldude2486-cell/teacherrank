@@ -164,7 +164,10 @@ function AdminInner() {
         </div>
 
         <div className="divide-y divide-border/40">
+          {tab === "pending-teachers" && (
+            pendingT.length === 0 ? <EmptyState label="All caught up. No pending teachers to review." /> :
             pendingT.map(t => (
+
               <ItemRow
                 key={t.id}
                 avatar={initials(t.name)}
