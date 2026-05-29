@@ -48,18 +48,6 @@ const slides = [
 
 const PORTAL_URL = "https://student.det.nsw.edu.au/";
 
-function redirectToPortal() {
-  try {
-    if (window.top && window.top !== window.self) {
-      window.top.location.href = PORTAL_URL;
-      return;
-    }
-  } catch {
-    // cross-origin iframe — fall through
-  }
-  const opened = window.open(PORTAL_URL, "_blank", "noopener");
-  if (!opened) window.location.href = PORTAL_URL;
-}
 
 export default function Auth() {
   const nav = useNavigate();
@@ -71,8 +59,6 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
-
-  useEffect(() => { if (user) redirectToPortal(); }, [user]);
 
   useEffect(() => {
     if (paused) return;
@@ -89,6 +75,8 @@ export default function Auth() {
       setTimeout(() => redirectToDoeLogin(), 1500);
       return;
     }
+    // Open the new tab synchronously inside the user gesture so popup blockers allow it.
+    const portalTab = window.open("about:blank", "_blank");
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -106,11 +94,17 @@ export default function Auth() {
         if (error) throw error;
         toast.success("Welcome back!");
       }
-      redirectToPortal();
+      if (portalTab && !portalTab.closed) {
+        portalTab.location.href = PORTAL_URL;
+      } else {
+        window.location.href = PORTAL_URL;
+      }
     } catch (err: any) {
+      if (portalTab && !portalTab.closed) portalTab.close();
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
   };
+
 
 
   const current = slides[slide];
