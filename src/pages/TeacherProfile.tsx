@@ -7,6 +7,9 @@ import { StarRating } from "@/components/StarRating";
 import { Flag, MapPin, MessageSquareHeart, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
 
 function ScoreTile({ label, value }: { label: string; value: number }) {
   return (
@@ -19,11 +22,13 @@ function ScoreTile({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-
 export default function TeacherProfile() {
   const { id } = useParams();
+  const { user } = useAuth();
   const teacher = teachers.find(t => t.id === id);
   const [reported, setReported] = useState<Record<string, boolean>>({});
+
+
 
   if (!teacher) {
     return (
@@ -37,11 +42,31 @@ export default function TeacherProfile() {
   const stats = teacherStats(teacher.id);
   const teacherReviews = reviews.filter(r => r.teacher_id === teacher.id && r.status === "approved");
   const initials = teacher.name.replace(/(Ms\.|Mr\.|Mrs\.)\s*/g, "").split(" ").map(p => p[0]).slice(0,2).join("");
-
-  const report = (rid: string) => {
+  const report = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to report a review."); return; }
+    const reason = window.prompt("Why are you reporting this review? (e.g. inappropriate, personal info, false)");
+    if (!reason || !reason.trim()) return;
+    const rev = teacherReviews.find(r => r.id === rid);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
+    const review_id = isUuid ? rid : crypto.randomUUID();
+    const details = [
+      isUuid ? null : `Mock review id: ${rid}`,
+      `Teacher: ${teacher.name}`,
+      rev?.written_feedback ? `Excerpt: ${rev.written_feedback.slice(0, 200)}` : null,
+    ].filter(Boolean).join("\n");
+    const { error } = await supabase.from("reports").insert({
+      review_type: "teacher" as any,
+      review_id,
+      reported_by_user_id: user.id,
+      reason: reason.trim(),
+      details,
+    });
+    if (error) { toast.error(error.message); return; }
     setReported(p => ({ ...p, [rid]: true }));
     toast.success("Thanks — this review has been flagged for moderator review.");
   };
+
+
 
   return (
     <div className="container py-10">
