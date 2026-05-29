@@ -61,7 +61,7 @@ export default function SchoolProfile() {
     const details = [
       isUuid ? null : `Mock review id: ${rid}`,
       `School: ${school.name}`,
-      rev?.text ? `Excerpt: ${rev.text.slice(0, 200)}` : null,
+      rev?.written_feedback ? `Excerpt: ${rev.text.slice(0, 200)}` : null,
     ].filter(Boolean).join("\n");
     const { error } = await supabase.from("reports").insert({
       review_type: "school" as any,
