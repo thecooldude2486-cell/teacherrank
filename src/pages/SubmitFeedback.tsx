@@ -47,9 +47,31 @@ function SubmitFeedbackForm() {
   const schoolMismatch = !!chosenTeacher && !!schoolId && chosenTeacher.school_id !== schoolId;
   const yearMismatch = !!chosenTeacher && !!yearLevel && chosenTeacher.year_level !== yearLevel;
 
+  const triggerLockout = async (reason: string) => {
+    const { data: until } = await (supabase.rpc as any)("lock_me_out", { _minutes: 60, _reason: reason });
+    await supabase.auth.signOut();
+    const when = until ? new Date(until as string) : null;
+    toast.error(
+      `That teacher, school, and year level don't match any record. You've been signed out and can't submit reviews for 1 hour${
+        when ? ` (until ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})` : ""
+      }.`,
+      { duration: 8000 },
+    );
+    nav("/auth");
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBlockMsg(null);
+
+    // Lockout check first — blocks even before validation.
+    const { data: lockedUntil } = await (supabase.rpc as any)("my_lockout");
+    if (lockedUntil) {
+      const when = new Date(lockedUntil as string);
+      toast.error(`Submissions are disabled until ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`);
+      return;
+    }
+
     if (!teacherId || !schoolId || !yearLevel) return toast.error("Please complete teacher, school, and year level.");
     const missing = ALL_TEACHER_RATING_KEYS.filter(k => !ratings[k] || ratings[k] <= 0);
     if (missing.length) {
@@ -57,8 +79,8 @@ function SubmitFeedbackForm() {
       return toast.error(`Please rate: ${names}${missing.length > 3 ? ` and ${missing.length - 3} more` : ""}.`);
     }
 
-    if (schoolMismatch) return toast.error("That teacher doesn't teach at the selected school. Please double-check.");
-    if (yearMismatch) return toast.error("That teacher doesn't teach the selected year level. Please double-check.");
+    if (schoolMismatch) { await triggerLockout("Teacher/school mismatch on review submission"); return; }
+    if (yearMismatch) { await triggerLockout("Teacher/year-level mismatch on review submission"); return; }
 
     if (!wasInClass) return toast.error("Please confirm you were actually in this teacher's class.");
     if (!notBiased) return toast.error("Please confirm your review is fair, not biased or based on hearsay.");
@@ -70,6 +92,7 @@ function SubmitFeedbackForm() {
       setBlockMsg(check.reason || "This review can't be submitted. Please reword it.");
       return;
     }
+
 
     const num = (k: string) => Number((ratings as any)[k]) || 0;
     const groupAvg = (keys: string[]) => {
