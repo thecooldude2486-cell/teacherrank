@@ -101,10 +101,18 @@ export default function Layout() {
                   </button>
                 </>
               ) : (
-                <Link to="/auth" onClick={() => setOpen(false)} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
-                  <span className="inline-flex items-center gap-3"><LogIn className="w-4 h-4" /> Log in / Sign up</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                <>
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-muted-foreground">
+                    <span className="w-8 h-8 rounded-xl bg-secondary grid place-items-center">
+                      <UserCircle2 className="w-4 h-4" />
+                    </span>
+                    You don't have an account
+                  </div>
+                  <Link to="/auth" onClick={() => setOpen(false)} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
+                    <span className="inline-flex items-center gap-3"><LogIn className="w-4 h-4" /> Log in / Sign up</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </>
               )}
             </div>
           </nav>
