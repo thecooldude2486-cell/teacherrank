@@ -343,10 +343,15 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
-  avatar: string; title: string; subtitle?: string;
+function ItemRow({ avatar, title, subtitle, href, onApprove, onReject, onDelete }: {
+  avatar: string; title: string; subtitle?: string; href?: string;
   onApprove: () => void; onReject: () => void; onDelete: () => void;
 }) {
+  const titleNode = href ? (
+    <Link to={href} className="font-semibold text-foreground truncate hover:text-primary underline-offset-2 hover:underline">{title}</Link>
+  ) : (
+    <h3 className="font-semibold text-foreground truncate">{title}</h3>
+  );
   return (
     <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
       <div className="flex items-center gap-4 min-w-0">
@@ -354,7 +359,7 @@ function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
           {avatar}
         </div>
         <div className="min-w-0">
-          <h3 className="font-semibold text-foreground truncate">{title}</h3>
+          {titleNode}
           {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
         </div>
       </div>
@@ -362,6 +367,7 @@ function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
     </div>
   );
 }
+
 
 function ReviewRow({ heading, body, meta, approveLabel, onApprove, onReject, onDelete }: {
   heading: React.ReactNode; body?: string | null; meta?: string; approveLabel?: string;
