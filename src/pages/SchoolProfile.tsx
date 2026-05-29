@@ -51,10 +51,30 @@ export default function SchoolProfile() {
     const mockSchool = mockSchools.find(s => s.id === t.school_id);
     return mockSchool ? mockSchool.name.toLowerCase().startsWith(firstWord) : false;
   });
-
-  const report = (rid: string) => {
+  const report = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to report a review."); return; }
+    const reason = window.prompt("Why are you reporting this review? (e.g. inappropriate, personal info, false)");
+    if (!reason || !reason.trim()) return;
+    const rev = reviews.find(r => r.id === rid);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
+    const review_id = isUuid ? rid : crypto.randomUUID();
+    const details = [
+      isUuid ? null : `Mock review id: ${rid}`,
+      `School: ${school.name}`,
+      rev?.text ? `Excerpt: ${rev.text.slice(0, 200)}` : null,
+    ].filter(Boolean).join("\n");
+    const { error } = await supabase.from("reports").insert({
+      review_type: "school" as any,
+      review_id,
+      reported_by_user_id: user.id,
+      reason: reason.trim(),
+      details,
+    });
+    if (error) { toast.error(error.message); return; }
     setReported(p => ({ ...p, [rid]: true }));
     toast.success("Thanks — this review has been flagged for moderator review.");
+  };
+
   };
 
   return (
