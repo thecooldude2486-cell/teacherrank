@@ -57,7 +57,7 @@ export default function Auth() {
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  useEffect(() => { if (user) nav("/account"); }, [user, nav]);
+  useEffect(() => { if (user) window.location.assign("https://student.det.nsw.edu.au/"); }, [user]);
 
   useEffect(() => {
     if (paused) return;
