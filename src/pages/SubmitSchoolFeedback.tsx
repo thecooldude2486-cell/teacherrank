@@ -78,7 +78,16 @@ function SubmitSchoolFeedbackForm() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+
+    const { data: lockedUntil } = await (supabase.rpc as any)("my_lockout");
+    if (lockedUntil) {
+      const when = new Date(lockedUntil as string);
+      toast.error(`Submissions are disabled until ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`);
+      return;
+    }
+
     if (!schoolId) return toast.error("Please choose a school.");
+
     if (!parentName.trim()) return toast.error("Please add a display name (e.g. 'A parent').");
     if (ALL_RATING_KEYS.some(k => ratings[k] === 0)) return toast.error("Please rate every category.");
     if (!agree) return toast.error("Please confirm the community guidelines.");

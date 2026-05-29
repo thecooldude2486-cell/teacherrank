@@ -247,6 +247,30 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_lockouts: {
+        Row: {
+          created_at: string
+          locked_until: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          locked_until: string
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          locked_until?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       teacher_reviews: {
         Row: {
           classroom_support_rating: number | null
@@ -395,6 +419,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      lock_me_out: {
+        Args: { _minutes: number; _reason: string }
+        Returns: string
+      }
+      my_lockout: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "normal_user" | "admin"
