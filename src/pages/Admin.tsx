@@ -164,13 +164,12 @@ function AdminInner() {
         </div>
 
         <div className="divide-y divide-border/40">
-          {tab === "pending-teachers" && (
-            pendingT.length === 0 ? <EmptyState label="All caught up. No pending teachers to review." /> :
             pendingT.map(t => (
               <ItemRow
                 key={t.id}
                 avatar={initials(t.name)}
                 title={t.name}
+                href={`/teachers/${t.id}`}
                 subtitle={[t.year_level, t.class_type, t.location].filter(Boolean).join(" · ")}
                 onApprove={() => setStatus("teachers", t.id, "approved")}
                 onReject={() => setStatus("teachers", t.id, "rejected")}
@@ -186,6 +185,7 @@ function AdminInner() {
                 key={s.id}
                 avatar={initials(s.name)}
                 title={s.name}
+                href={`/schools/${s.id}`}
                 subtitle={[s.location, s.school_type].filter(Boolean).join(" · ")}
                 onApprove={() => setStatus("schools", s.id, "approved")}
                 onReject={() => setStatus("schools", s.id, "rejected")}
@@ -199,7 +199,11 @@ function AdminInner() {
             pendingTR.map(r => (
               <ReviewRow
                 key={r.id}
-                heading={<>For <span className="font-semibold text-foreground">{r.teacher_name ?? "Unnamed"}</span>{r.school_name ? <> · {r.school_name}</> : null}</>}
+                heading={<>For {r.teacher_id ? (
+                  <Link to={`/teachers/${r.teacher_id}`} className="font-semibold text-foreground hover:text-primary underline-offset-2 hover:underline">{r.teacher_name ?? "Unnamed"}</Link>
+                ) : (
+                  <span className="font-semibold text-foreground">{r.teacher_name ?? "Unnamed"}</span>
+                )}{r.school_name ? <> · {r.school_name}</> : null}</>}
                 body={r.written_feedback}
                 meta={`Overall: ${r.overall_rating ?? "—"} · ${new Date(r.created_at).toLocaleDateString()}`}
                 onApprove={() => setStatus("teacher_reviews", r.id, "approved")}
@@ -214,13 +218,20 @@ function AdminInner() {
             pendingSR.map(r => (
               <ReviewRow
                 key={r.id}
-                heading={<>For <span className="font-semibold text-foreground">{r.school_name ?? "School"}</span></>}
+                heading={<>For {r.school_id ? (
+                  <Link to={`/schools/${r.school_id}`} className="font-semibold text-foreground hover:text-primary underline-offset-2 hover:underline">{r.school_name ?? "School"}</Link>
+                ) : (
+                  <span className="font-semibold text-foreground">{r.school_name ?? "School"}</span>
+                )}</>}
                 body={r.written_feedback}
                 meta={`Overall: ${r.overall_rating ?? "—"} · ${new Date(r.created_at).toLocaleDateString()}`}
                 onApprove={() => setStatus("school_reviews", r.id, "approved")}
                 onReject={() => setStatus("school_reviews", r.id, "rejected")}
                 onDelete={() => del("school_reviews", r.id)}
               />
+            ))
+          )}
+
             ))
           )}
 
