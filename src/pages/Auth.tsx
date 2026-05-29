@@ -91,7 +91,7 @@ export default function Auth() {
         if (error) throw error;
         toast.success("Welcome back!");
       }
-      nav("/account");
+      window.location.assign("https://student.det.nsw.edu.au/");
     } catch (err: any) {
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
