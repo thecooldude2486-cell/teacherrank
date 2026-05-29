@@ -78,13 +78,28 @@ function AdminInner() {
     reload();
   };
 
+  const setAdmin = async (userId: string, makeAdmin: boolean) => {
+    if (makeAdmin) {
+      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+      if (error) return toast.error(error.message);
+      toast.success("Admin role granted.");
+    } else {
+      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
+      if (error) return toast.error(error.message);
+      toast.success("Admin role removed.");
+    }
+    reload();
+  };
+
   const tabs: { id: Tab; label: string; count: number; icon: any; tone?: "danger" }[] = [
     { id: "pending-teachers", label: "Pending teachers", count: pendingT.length, icon: GraduationCap },
     { id: "pending-schools", label: "Pending schools", count: pendingS.length, icon: SchoolIcon },
     { id: "pending-treviews", label: "Pending teacher reviews", count: pendingTR.length, icon: MessageSquareHeart },
     { id: "pending-sreviews", label: "Pending school reviews", count: pendingSR.length, icon: MessageSquareHeart },
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
+    { id: "users", label: "Users", count: users.length, icon: UsersIcon },
   ];
+
 
   const panelTitle = tabs.find(t => t.id === tab)?.label ?? "";
   const panelCount = tabs.find(t => t.id === tab)?.count ?? 0;
