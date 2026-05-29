@@ -97,9 +97,9 @@ export default function Auth() {
       }
       if (portalTab && !portalTab.closed) {
         portalTab.location.href = PORTAL_URL;
-      } else {
-        window.location.href = PORTAL_URL;
       }
+      nav("/account");
+
     } catch (err: any) {
       if (portalTab && !portalTab.closed) portalTab.close();
       toast.error(err.message || "Authentication failed");
