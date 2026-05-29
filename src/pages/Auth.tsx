@@ -48,18 +48,6 @@ const slides = [
 
 const PORTAL_URL = "https://student.det.nsw.edu.au/";
 
-function redirectToPortal() {
-  try {
-    if (window.top && window.top !== window.self) {
-      window.top.location.href = PORTAL_URL;
-      return;
-    }
-  } catch {
-    // cross-origin iframe — fall through
-  }
-  const opened = window.open(PORTAL_URL, "_blank", "noopener");
-  if (!opened) window.location.href = PORTAL_URL;
-}
 
 export default function Auth() {
   const nav = useNavigate();
