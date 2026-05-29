@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
 import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
 
 type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "users";
 type UserRow = { id: string; email: string | null; display_name: string | null; is_admin: boolean };
@@ -165,10 +167,12 @@ function AdminInner() {
           {tab === "pending-teachers" && (
             pendingT.length === 0 ? <EmptyState label="All caught up. No pending teachers to review." /> :
             pendingT.map(t => (
+
               <ItemRow
                 key={t.id}
                 avatar={initials(t.name)}
                 title={t.name}
+                href={`/teachers/${t.id}`}
                 subtitle={[t.year_level, t.class_type, t.location].filter(Boolean).join(" · ")}
                 onApprove={() => setStatus("teachers", t.id, "approved")}
                 onReject={() => setStatus("teachers", t.id, "rejected")}
@@ -184,6 +188,7 @@ function AdminInner() {
                 key={s.id}
                 avatar={initials(s.name)}
                 title={s.name}
+                href={`/schools/${s.id}`}
                 subtitle={[s.location, s.school_type].filter(Boolean).join(" · ")}
                 onApprove={() => setStatus("schools", s.id, "approved")}
                 onReject={() => setStatus("schools", s.id, "rejected")}
@@ -197,7 +202,11 @@ function AdminInner() {
             pendingTR.map(r => (
               <ReviewRow
                 key={r.id}
-                heading={<>For <span className="font-semibold text-foreground">{r.teacher_name ?? "Unnamed"}</span>{r.school_name ? <> · {r.school_name}</> : null}</>}
+                heading={<>For {r.teacher_id ? (
+                  <Link to={`/teachers/${r.teacher_id}`} className="font-semibold text-foreground hover:text-primary underline-offset-2 hover:underline">{r.teacher_name ?? "Unnamed"}</Link>
+                ) : (
+                  <span className="font-semibold text-foreground">{r.teacher_name ?? "Unnamed"}</span>
+                )}{r.school_name ? <> · {r.school_name}</> : null}</>}
                 body={r.written_feedback}
                 meta={`Overall: ${r.overall_rating ?? "—"} · ${new Date(r.created_at).toLocaleDateString()}`}
                 onApprove={() => setStatus("teacher_reviews", r.id, "approved")}
@@ -212,7 +221,11 @@ function AdminInner() {
             pendingSR.map(r => (
               <ReviewRow
                 key={r.id}
-                heading={<>For <span className="font-semibold text-foreground">{r.school_name ?? "School"}</span></>}
+                heading={<>For {r.school_id ? (
+                  <Link to={`/schools/${r.school_id}`} className="font-semibold text-foreground hover:text-primary underline-offset-2 hover:underline">{r.school_name ?? "School"}</Link>
+                ) : (
+                  <span className="font-semibold text-foreground">{r.school_name ?? "School"}</span>
+                )}</>}
                 body={r.written_feedback}
                 meta={`Overall: ${r.overall_rating ?? "—"} · ${new Date(r.created_at).toLocaleDateString()}`}
                 onApprove={() => setStatus("school_reviews", r.id, "approved")}
@@ -221,6 +234,8 @@ function AdminInner() {
               />
             ))
           )}
+
+
 
           {tab === "reports" && (
             reports.length === 0 ? <EmptyState label="No reports right now." /> :
@@ -328,10 +343,15 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
-  avatar: string; title: string; subtitle?: string;
+function ItemRow({ avatar, title, subtitle, href, onApprove, onReject, onDelete }: {
+  avatar: string; title: string; subtitle?: string; href?: string;
   onApprove: () => void; onReject: () => void; onDelete: () => void;
 }) {
+  const titleNode = href ? (
+    <Link to={href} className="font-semibold text-foreground truncate hover:text-primary underline-offset-2 hover:underline">{title}</Link>
+  ) : (
+    <h3 className="font-semibold text-foreground truncate">{title}</h3>
+  );
   return (
     <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
       <div className="flex items-center gap-4 min-w-0">
@@ -339,7 +359,7 @@ function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
           {avatar}
         </div>
         <div className="min-w-0">
-          <h3 className="font-semibold text-foreground truncate">{title}</h3>
+          {titleNode}
           {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
         </div>
       </div>
@@ -347,6 +367,7 @@ function ItemRow({ avatar, title, subtitle, onApprove, onReject, onDelete }: {
     </div>
   );
 }
+
 
 function ReviewRow({ heading, body, meta, approveLabel, onApprove, onReject, onDelete }: {
   heading: React.ReactNode; body?: string | null; meta?: string; approveLabel?: string;
