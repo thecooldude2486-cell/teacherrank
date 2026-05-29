@@ -235,8 +235,7 @@ function AdminInner() {
             ))
           )}
 
-            ))
-          )}
+
 
           {tab === "reports" && (
             reports.length === 0 ? <EmptyState label="No reports right now." /> :
