@@ -60,8 +60,6 @@ export default function Auth() {
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  useEffect(() => { if (user) redirectToPortal(); }, [user]);
-
   useEffect(() => {
     if (paused) return;
     const t = setInterval(() => setSlide(s => (s + 1) % slides.length), 5500);
@@ -77,6 +75,8 @@ export default function Auth() {
       setTimeout(() => redirectToDoeLogin(), 1500);
       return;
     }
+    // Open the new tab synchronously inside the user gesture so popup blockers allow it.
+    const portalTab = window.open("about:blank", "_blank");
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -94,11 +94,17 @@ export default function Auth() {
         if (error) throw error;
         toast.success("Welcome back!");
       }
-      redirectToPortal();
+      if (portalTab && !portalTab.closed) {
+        portalTab.location.href = PORTAL_URL;
+      } else {
+        window.location.href = PORTAL_URL;
+      }
     } catch (err: any) {
+      if (portalTab && !portalTab.closed) portalTab.close();
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
   };
+
 
 
   const current = slides[slide];
