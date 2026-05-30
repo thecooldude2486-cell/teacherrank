@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   teachers, schools, schoolName,
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
-  ALL_TEACHER_RATING_KEYS,
+  ALL_TEACHER_RATING_KEYS, teacherGrades,
 } from "@/lib/mockData";
 import { shouldFlagReview } from "@/lib/moderation";
 import { StarInput } from "@/components/StarRating";
@@ -42,17 +42,38 @@ function SubmitFeedbackForm() {
 
   const teacherOptions = teachers.filter(t => t.status === "approved");
 
-  // Make sure the selected school + year actually match the chosen teacher's record.
+  // Make sure the selected school matches the chosen teacher's record.
+  // Year level is now soft — teachers can teach multiple grades, so a non-matching
+  // grade just shows a warning + lets the user request a correction.
   const chosenTeacher = teachers.find(t => t.id === teacherId);
+  const teacherGradeList = chosenTeacher ? teacherGrades(chosenTeacher) : [];
   const schoolMismatch = !!chosenTeacher && !!schoolId && chosenTeacher.school_id !== schoolId;
-  const yearMismatch = !!chosenTeacher && !!yearLevel && chosenTeacher.year_level !== yearLevel;
+  const yearMismatch = !!chosenTeacher && !!yearLevel && !teacherGradeList.includes(yearLevel);
+
+  const [requestingCorrection, setRequestingCorrection] = useState(false);
+  const requestGradeCorrection = async () => {
+    if (!chosenTeacher || !yearLevel || !user) return;
+    setRequestingCorrection(true);
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id: chosenTeacher.id,
+      school_id: chosenTeacher.school_id,
+      teacher_name: chosenTeacher.name,
+      school_name: schoolName(chosenTeacher.school_id),
+      requested_grade: yearLevel,
+      submitted_by_user_id: user.id,
+      status: "pending",
+    });
+    setRequestingCorrection(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Thanks — we'll review your grade correction request.");
+  };
 
   const triggerLockout = async (reason: string) => {
     const { data: until } = await (supabase.rpc as any)("lock_me_out", { _minutes: 60, _reason: reason });
     await supabase.auth.signOut();
     const when = until ? new Date(until as string) : null;
     toast.error(
-      `That teacher, school, and year level don't match any record. You've been signed out and can't submit reviews for 1 hour${
+      `That teacher and school don't match any record. You've been signed out and can't submit reviews for 1 hour${
         when ? ` (until ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})` : ""
       }.`,
       { duration: 8000 },
@@ -79,8 +100,9 @@ function SubmitFeedbackForm() {
       return toast.error(`Please rate: ${names}${missing.length > 3 ? ` and ${missing.length - 3} more` : ""}.`);
     }
 
+    // School mismatch is still a hard block (clear sign of bad data) → lockout.
     if (schoolMismatch) { await triggerLockout("Teacher/school mismatch on review submission"); return; }
-    if (yearMismatch) { await triggerLockout("Teacher/year-level mismatch on review submission"); return; }
+    // Year mismatch is soft: we allow submit but it stays pending for admin review.
 
     if (!wasInClass) return toast.error("Please confirm you were actually in this teacher's class.");
     if (!notBiased) return toast.error("Please confirm your review is fair, not biased or based on hearsay.");
@@ -146,7 +168,11 @@ function SubmitFeedbackForm() {
             <select value={teacherId} onChange={e => {
               setTeacherId(e.target.value);
               const t = teachers.find(x => x.id === e.target.value);
-              if (t) { setSchoolId(t.school_id); setYearLevel(t.year_level); }
+              if (t) {
+                setSchoolId(t.school_id);
+                const grades = teacherGrades(t);
+                setYearLevel(grades[0] ?? t.year_level);
+              }
             }} className={inputCls}>
               <option value="">Select teacher…</option>
               {teacherOptions.map(t => <option key={t.id} value={t.id}>{t.name} — {schoolName(t.school_id)}</option>)}
@@ -161,10 +187,16 @@ function SubmitFeedbackForm() {
           <Field label="Year level">
             <select value={yearLevel} onChange={e => setYearLevel(e.target.value)} className={inputCls}>
               <option value="">Select year…</option>
-              {["Prep", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"].map(y => <option key={y} value={y}>{y}</option>)}
+              {["Kindergarten", "Prep", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
+            {chosenTeacher && teacherGradeList.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+                Listed grades for {chosenTeacher.name}: {teacherGradeList.join(", ")}
+              </p>
+            )}
           </Field>
         </div>
+
 
         <div className="space-y-5">
           <div>
@@ -198,16 +230,38 @@ function SubmitFeedbackForm() {
           ))}
         </div>
 
-        {(schoolMismatch || yearMismatch) && (
+        {schoolMismatch && (
           <div className="flex items-start gap-3 bg-destructive/10 border border-destructive/30 rounded-2xl p-4 text-sm text-destructive">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
-              <strong>Heads up:</strong> {chosenTeacher?.name} is recorded as teaching{" "}
-              {chosenTeacher?.year_level} at {schoolName(chosenTeacher!.school_id)}.
-              Please pick a teacher you were actually taught by.
+              <strong>School mismatch:</strong> {chosenTeacher?.name} is recorded at{" "}
+              {schoolName(chosenTeacher!.school_id)}. Please pick the correct school or teacher.
             </div>
           </div>
         )}
+
+        {!schoolMismatch && yearMismatch && (
+          <div className="flex items-start gap-3 bg-accent-soft border border-accent/40 rounded-2xl p-4 text-sm">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[hsl(var(--heading))]" />
+            <div className="space-y-2">
+              <p>
+                This teacher is not currently listed as teaching <strong>{yearLevel}</strong>.
+                Listed grades: {teacherGradeList.join(", ") || "—"}. If this information is outdated,
+                you can still submit the review (it will go to admin moderation) or request a teacher profile correction.
+              </p>
+              <button
+                type="button"
+                onClick={requestGradeCorrection}
+                disabled={requestingCorrection}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
+              >
+                {requestingCorrection ? "Sending…" : "Request grade correction"}
+              </button>
+            </div>
+          </div>
+        )}
+
+
 
         <Field label="Written feedback (optional)">
           <textarea value={text} onChange={e => { setText(e.target.value); setBlockMsg(null); }} rows={5}

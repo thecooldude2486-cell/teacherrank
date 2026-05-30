@@ -93,12 +93,26 @@ export type Teacher = {
   name: string;
   school_id: string;
   year_level: string;
+  year_levels?: string[];
   class_type: string;
   location: string;
   status: "pending" | "approved";
   created_at: string;
   avatar_color: string;
   photo?: string;
+};
+
+export const teacherGrades = (t: Teacher): string[] => {
+  const list = (t.year_levels && t.year_levels.length > 0) ? t.year_levels : [t.year_level];
+  return Array.from(new Set(list.filter(Boolean)));
+};
+
+export const addTeacherGrade = (teacherId: string, grade: string) => {
+  teachers = teachers.map(t => {
+    if (t.id !== teacherId) return t;
+    const next = Array.from(new Set([...(t.year_levels ?? [t.year_level]), grade]));
+    return { ...t, year_levels: next };
+  });
 };
 
 export type School = { id: string; name: string; location: string };
@@ -114,14 +128,14 @@ export const schools: School[] = [
 const colors = ["#5ab3a8", "#f0a78a", "#f5c869", "#a4c4a0", "#c9a0dc", "#7fb3d5"];
 
 export let teachers: Teacher[] = [
-  { id: "t1", name: "Ms. Eleanor Hayes", school_id: "s1", year_level: "Year 3", class_type: "General Classroom", location: "Melbourne, VIC", status: "approved", created_at: "2025-01-12", avatar_color: colors[0], photo: t1Img },
-  { id: "t2", name: "Mr. James Whitaker", school_id: "s2", year_level: "Year 5", class_type: "Mathematics & Science", location: "Sydney, NSW", status: "approved", created_at: "2025-02-04", avatar_color: colors[1], photo: t2Img },
-  { id: "t3", name: "Mrs. Priya Sharma", school_id: "s1", year_level: "Year 1", class_type: "Foundation Literacy", location: "Melbourne, VIC", status: "approved", created_at: "2025-01-22", avatar_color: colors[2], photo: t3Img },
-  { id: "t4", name: "Mr. Daniel O'Connor", school_id: "s3", year_level: "Year 6", class_type: "General Classroom", location: "Brisbane, QLD", status: "approved", created_at: "2025-03-01", avatar_color: colors[3], photo: t4Img },
-  { id: "t5", name: "Ms. Sofia Martinez", school_id: "s4", year_level: "Year 2", class_type: "Arts & Music", location: "Perth, WA", status: "approved", created_at: "2025-02-18", avatar_color: colors[4], photo: t5Img },
-  { id: "t6", name: "Mrs. Aisha Bello", school_id: "s5", year_level: "Year 4", class_type: "General Classroom", location: "Adelaide, SA", status: "approved", created_at: "2025-03-10", avatar_color: colors[5], photo: t6Img },
-  { id: "t7", name: "Mr. Thomas Reilly", school_id: "s2", year_level: "Year 3", class_type: "Physical Education", location: "Sydney, NSW", status: "approved", created_at: "2025-04-02", avatar_color: colors[0], photo: t7Img },
-  { id: "t8", name: "Ms. Hana Tanaka", school_id: "s3", year_level: "Prep", class_type: "Foundation", location: "Brisbane, QLD", status: "pending", created_at: "2025-05-01", avatar_color: colors[1], photo: t8Img },
+  { id: "t1", name: "Ms. Eleanor Hayes", school_id: "s1", year_level: "Year 3", year_levels: ["Year 3", "Year 4"], class_type: "General Classroom", location: "Melbourne, VIC", status: "approved", created_at: "2025-01-12", avatar_color: colors[0], photo: t1Img },
+  { id: "t2", name: "Mr. James Whitaker", school_id: "s2", year_level: "Year 5", year_levels: ["Year 5", "Year 6"], class_type: "Mathematics & Science", location: "Sydney, NSW", status: "approved", created_at: "2025-02-04", avatar_color: colors[1], photo: t2Img },
+  { id: "t3", name: "Mrs. Priya Sharma", school_id: "s1", year_level: "Year 1", year_levels: ["Kindergarten", "Year 1"], class_type: "Foundation Literacy", location: "Melbourne, VIC", status: "approved", created_at: "2025-01-22", avatar_color: colors[2], photo: t3Img },
+  { id: "t4", name: "Mr. Daniel O'Connor", school_id: "s3", year_level: "Year 6", year_levels: ["Year 5", "Year 6"], class_type: "General Classroom", location: "Brisbane, QLD", status: "approved", created_at: "2025-03-01", avatar_color: colors[3], photo: t4Img },
+  { id: "t5", name: "Ms. Sofia Martinez", school_id: "s4", year_level: "Year 2", year_levels: ["Year 1", "Year 2"], class_type: "Arts & Music", location: "Perth, WA", status: "approved", created_at: "2025-02-18", avatar_color: colors[4], photo: t5Img },
+  { id: "t6", name: "Mrs. Aisha Bello", school_id: "s5", year_level: "Year 4", year_levels: ["Year 3", "Year 4"], class_type: "General Classroom", location: "Adelaide, SA", status: "approved", created_at: "2025-03-10", avatar_color: colors[5], photo: t6Img },
+  { id: "t7", name: "Mr. Thomas Reilly", school_id: "s2", year_level: "Year 3", year_levels: ["Year 3", "Year 4", "Year 5"], class_type: "Physical Education", location: "Sydney, NSW", status: "approved", created_at: "2025-04-02", avatar_color: colors[0], photo: t7Img },
+  { id: "t8", name: "Ms. Hana Tanaka", school_id: "s3", year_level: "Prep", year_levels: ["Prep", "Year 1"], class_type: "Foundation", location: "Brisbane, QLD", status: "pending", created_at: "2025-05-01", avatar_color: colors[1], photo: t8Img },
 ];
 
 const spread = (vals: number[]): TeacherRatings => {

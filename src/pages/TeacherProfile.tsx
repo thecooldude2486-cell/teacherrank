@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import {
-  teachers, reviews, teacherStats, schoolName,
+  teachers, reviews, teacherStats, schoolName, teacherGrades,
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
 } from "@/lib/mockData";
 import { StarRating } from "@/components/StarRating";
@@ -88,7 +88,9 @@ export default function TeacherProfile() {
             <h1 className="text-3xl md:text-4xl mb-2">{teacher.name}</h1>
             <p className="text-muted-foreground mb-3">{schoolName(teacher.school_id)}</p>
             <div className="flex flex-wrap gap-2">
-              <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary-soft text-primary">{teacher.year_level}</span>
+              {teacherGrades(teacher).map(g => (
+                <span key={g} className="text-xs font-medium px-3 py-1 rounded-full bg-primary-soft text-primary">{g}</span>
+              ))}
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-card border border-border">{teacher.class_type}</span>
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-card border border-border inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{teacher.location}</span>
             </div>
