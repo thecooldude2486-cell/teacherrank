@@ -42,17 +42,38 @@ function SubmitFeedbackForm() {
 
   const teacherOptions = teachers.filter(t => t.status === "approved");
 
-  // Make sure the selected school + year actually match the chosen teacher's record.
+  // Make sure the selected school matches the chosen teacher's record.
+  // Year level is now soft — teachers can teach multiple grades, so a non-matching
+  // grade just shows a warning + lets the user request a correction.
   const chosenTeacher = teachers.find(t => t.id === teacherId);
+  const teacherGradeList = chosenTeacher ? teacherGrades(chosenTeacher) : [];
   const schoolMismatch = !!chosenTeacher && !!schoolId && chosenTeacher.school_id !== schoolId;
-  const yearMismatch = !!chosenTeacher && !!yearLevel && chosenTeacher.year_level !== yearLevel;
+  const yearMismatch = !!chosenTeacher && !!yearLevel && !teacherGradeList.includes(yearLevel);
+
+  const [requestingCorrection, setRequestingCorrection] = useState(false);
+  const requestGradeCorrection = async () => {
+    if (!chosenTeacher || !yearLevel || !user) return;
+    setRequestingCorrection(true);
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id: chosenTeacher.id,
+      school_id: chosenTeacher.school_id,
+      teacher_name: chosenTeacher.name,
+      school_name: schoolName(chosenTeacher.school_id),
+      requested_grade: yearLevel,
+      submitted_by_user_id: user.id,
+      status: "pending",
+    });
+    setRequestingCorrection(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Thanks — we'll review your grade correction request.");
+  };
 
   const triggerLockout = async (reason: string) => {
     const { data: until } = await (supabase.rpc as any)("lock_me_out", { _minutes: 60, _reason: reason });
     await supabase.auth.signOut();
     const when = until ? new Date(until as string) : null;
     toast.error(
-      `That teacher, school, and year level don't match any record. You've been signed out and can't submit reviews for 1 hour${
+      `That teacher and school don't match any record. You've been signed out and can't submit reviews for 1 hour${
         when ? ` (until ${when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})` : ""
       }.`,
       { duration: 8000 },
@@ -79,8 +100,9 @@ function SubmitFeedbackForm() {
       return toast.error(`Please rate: ${names}${missing.length > 3 ? ` and ${missing.length - 3} more` : ""}.`);
     }
 
+    // School mismatch is still a hard block (clear sign of bad data) → lockout.
     if (schoolMismatch) { await triggerLockout("Teacher/school mismatch on review submission"); return; }
-    if (yearMismatch) { await triggerLockout("Teacher/year-level mismatch on review submission"); return; }
+    // Year mismatch is soft: we allow submit but it stays pending for admin review.
 
     if (!wasInClass) return toast.error("Please confirm you were actually in this teacher's class.");
     if (!notBiased) return toast.error("Please confirm your review is fair, not biased or based on hearsay.");
