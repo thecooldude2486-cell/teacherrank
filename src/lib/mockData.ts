@@ -93,12 +93,26 @@ export type Teacher = {
   name: string;
   school_id: string;
   year_level: string;
+  year_levels?: string[];
   class_type: string;
   location: string;
   status: "pending" | "approved";
   created_at: string;
   avatar_color: string;
   photo?: string;
+};
+
+export const teacherGrades = (t: Teacher): string[] => {
+  const list = (t.year_levels && t.year_levels.length > 0) ? t.year_levels : [t.year_level];
+  return Array.from(new Set(list.filter(Boolean)));
+};
+
+export const addTeacherGrade = (teacherId: string, grade: string) => {
+  teachers = teachers.map(t => {
+    if (t.id !== teacherId) return t;
+    const next = Array.from(new Set([...(t.year_levels ?? [t.year_level]), grade]));
+    return { ...t, year_levels: next };
+  });
 };
 
 export type School = { id: string; name: string; location: string };
