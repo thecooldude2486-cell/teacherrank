@@ -254,6 +254,31 @@ function AdminInner() {
 
 
 
+          {tab === "grade-corrections" && (
+            corrections.length === 0 ? <EmptyState label="No grade correction requests pending." /> :
+            corrections.map(c => (
+              <div key={c.id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                <div className="min-w-0">
+                  <div className="font-semibold text-foreground">
+                    {c.teacher_name ?? "Teacher"} {c.school_name ? <span className="text-muted-foreground font-normal">· {c.school_name}</span> : null}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Add grade: <span className="font-medium text-foreground">{c.requested_grade}</span>
+                    {" · "}{new Date(c.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => resolveCorrection(c, true)} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 transition-colors">
+                    <Check className="w-4 h-4" /> Approve
+                  </button>
+                  <button onClick={() => resolveCorrection(c, false)} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg border border-border bg-card hover:bg-secondary transition-colors">
+                    <X className="w-4 h-4" /> Reject
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+
           {tab === "reports" && (
             reports.length === 0 ? <EmptyState label="No reports right now." /> :
             reports.map(rep => (
