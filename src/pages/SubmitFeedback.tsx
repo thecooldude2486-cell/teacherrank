@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   teachers, schools, schoolName,
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
-  ALL_TEACHER_RATING_KEYS,
+  ALL_TEACHER_RATING_KEYS, teacherGrades,
 } from "@/lib/mockData";
 import { shouldFlagReview } from "@/lib/moderation";
 import { StarInput } from "@/components/StarRating";
