@@ -34,20 +34,23 @@ function AdminInner() {
   const [pendingTR, setPTR] = useState<any[]>([]);
   const [pendingSR, setPSR] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
+  const [corrections, setCorrections] = useState<any[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
 
   const reload = async () => {
-    const [t, s, tr, sr, r, profs, roles] = await Promise.all([
+    const [t, s, tr, sr, r, gc, profs, roles] = await Promise.all([
       supabase.from("teachers").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("schools").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("teacher_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("school_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("reports").select("*").order("created_at", { ascending: false }),
+      supabase.from("teacher_grade_corrections" as any).select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id,email,display_name").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
     ]);
     setPT(t.data ?? []); setPS(s.data ?? []); setPTR(tr.data ?? []); setPSR(sr.data ?? []); setReports(r.data ?? []);
+    setCorrections((gc as any).data ?? []);
     const adminIds = new Set((roles.data ?? []).map((x: any) => x.user_id));
     setUsers((profs.data ?? []).map((p: any) => ({ ...p, is_admin: adminIds.has(p.id) })));
   };
