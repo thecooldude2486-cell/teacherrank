@@ -271,6 +271,45 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_grade_corrections: {
+        Row: {
+          created_at: string
+          id: string
+          requested_grade: string
+          school_id: string | null
+          school_name: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submitted_by_user_id: string
+          teacher_id: string
+          teacher_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requested_grade: string
+          school_id?: string | null
+          school_name?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_by_user_id: string
+          teacher_id: string
+          teacher_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requested_grade?: string
+          school_id?: string | null
+          school_name?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_by_user_id?: string
+          teacher_id?: string
+          teacher_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       teacher_reviews: {
         Row: {
           classroom_support_rating: number | null
