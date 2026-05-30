@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
-import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search } from "lucide-react";
+import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { addTeacherGrade } from "@/lib/mockData";
 
 
-type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "users";
+type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "users";
 type UserRow = { id: string; email: string | null; display_name: string | null; is_admin: boolean };
 
 
