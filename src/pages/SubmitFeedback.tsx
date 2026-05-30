@@ -230,16 +230,38 @@ function SubmitFeedbackForm() {
           ))}
         </div>
 
-        {(schoolMismatch || yearMismatch) && (
+        {schoolMismatch && (
           <div className="flex items-start gap-3 bg-destructive/10 border border-destructive/30 rounded-2xl p-4 text-sm text-destructive">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
-              <strong>Heads up:</strong> {chosenTeacher?.name} is recorded as teaching{" "}
-              {chosenTeacher?.year_level} at {schoolName(chosenTeacher!.school_id)}.
-              Please pick a teacher you were actually taught by.
+              <strong>School mismatch:</strong> {chosenTeacher?.name} is recorded at{" "}
+              {schoolName(chosenTeacher!.school_id)}. Please pick the correct school or teacher.
             </div>
           </div>
         )}
+
+        {!schoolMismatch && yearMismatch && (
+          <div className="flex items-start gap-3 bg-accent-soft border border-accent/40 rounded-2xl p-4 text-sm">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[hsl(var(--heading))]" />
+            <div className="space-y-2">
+              <p>
+                This teacher is not currently listed as teaching <strong>{yearLevel}</strong>.
+                Listed grades: {teacherGradeList.join(", ") || "—"}. If this information is outdated,
+                you can still submit the review (it will go to admin moderation) or request a teacher profile correction.
+              </p>
+              <button
+                type="button"
+                onClick={requestGradeCorrection}
+                disabled={requestingCorrection}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
+              >
+                {requestingCorrection ? "Sending…" : "Request grade correction"}
+              </button>
+            </div>
+          </div>
+        )}
+
+
 
         <Field label="Written feedback (optional)">
           <textarea value={text} onChange={e => { setText(e.target.value); setBlockMsg(null); }} rows={5}
