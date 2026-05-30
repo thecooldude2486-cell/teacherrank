@@ -168,7 +168,11 @@ function SubmitFeedbackForm() {
             <select value={teacherId} onChange={e => {
               setTeacherId(e.target.value);
               const t = teachers.find(x => x.id === e.target.value);
-              if (t) { setSchoolId(t.school_id); setYearLevel(t.year_level); }
+              if (t) {
+                setSchoolId(t.school_id);
+                const grades = teacherGrades(t);
+                setYearLevel(grades[0] ?? t.year_level);
+              }
             }} className={inputCls}>
               <option value="">Select teacher…</option>
               {teacherOptions.map(t => <option key={t.id} value={t.id}>{t.name} — {schoolName(t.school_id)}</option>)}
@@ -183,10 +187,16 @@ function SubmitFeedbackForm() {
           <Field label="Year level">
             <select value={yearLevel} onChange={e => setYearLevel(e.target.value)} className={inputCls}>
               <option value="">Select year…</option>
-              {["Prep", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"].map(y => <option key={y} value={y}>{y}</option>)}
+              {["Kindergarten", "Prep", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
+            {chosenTeacher && teacherGradeList.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+                Listed grades for {chosenTeacher.name}: {teacherGradeList.join(", ")}
+              </p>
+            )}
           </Field>
         </div>
+
 
         <div className="space-y-5">
           <div>
