@@ -97,11 +97,24 @@ function AdminInner() {
     reload();
   };
 
+  const resolveCorrection = async (row: any, approve: boolean) => {
+    if (approve) {
+      addTeacherGrade(row.teacher_id, row.requested_grade);
+    }
+    const { error } = await supabase.from("teacher_grade_corrections" as any)
+      .update({ status: approve ? "approved" : "rejected" })
+      .eq("id", row.id);
+    if (error) return toast.error(error.message);
+    toast.success(approve ? `Added ${row.requested_grade} to ${row.teacher_name}.` : "Rejected.");
+    reload();
+  };
+
   const tabs: { id: Tab; label: string; count: number; icon: any; tone?: "danger" }[] = [
     { id: "pending-teachers", label: "Pending teachers", count: pendingT.length, icon: GraduationCap },
     { id: "pending-schools", label: "Pending schools", count: pendingS.length, icon: SchoolIcon },
     { id: "pending-treviews", label: "Pending teacher reviews", count: pendingTR.length, icon: MessageSquareHeart },
     { id: "pending-sreviews", label: "Pending school reviews", count: pendingSR.length, icon: MessageSquareHeart },
+    { id: "grade-corrections", label: "Grade corrections", count: corrections.length, icon: BookOpen },
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
   ];
