@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import {
-  teachers, reviews, teacherStats, schoolName,
+  teachers, reviews, teacherStats, schoolName, teacherGrades,
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
 } from "@/lib/mockData";
 import { StarRating } from "@/components/StarRating";
