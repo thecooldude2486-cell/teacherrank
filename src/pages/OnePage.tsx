@@ -13,6 +13,7 @@ import Account from "./Account";
 import Auth from "./Auth";
 import TeacherProfile from "./TeacherProfile";
 import SchoolProfile from "./SchoolProfile";
+import Guidelines from "./Guidelines";
 
 
 type Section = { id: string; path: string; label: string; Component: React.ComponentType; when?: boolean };
