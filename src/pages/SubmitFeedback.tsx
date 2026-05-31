@@ -94,6 +94,24 @@ function SubmitFeedbackForm() {
       return;
     }
 
+    // One review per teacher rule.
+    if (user && teacherId) {
+      const t = teachers.find(x => x.id === teacherId);
+      const { data: existing } = await supabase
+        .from("teacher_reviews")
+        .select("id,status")
+        .eq("user_id", user.id)
+        .eq("teacher_name", t?.name ?? "")
+        .in("status", ["pending", "approved"])
+        .limit(1);
+      if (existing && existing.length > 0) {
+        toast.error("You have already submitted feedback. You can edit your existing feedback or wait for admin review.");
+        nav("/account");
+        return;
+      }
+    }
+
+
     if (!teacherId || !schoolId || !yearLevel) return toast.error("Please complete teacher, school, and year level.");
     const missing = ALL_TEACHER_RATING_KEYS.filter(k => !ratings[k] || ratings[k] <= 0);
     if (missing.length) {
