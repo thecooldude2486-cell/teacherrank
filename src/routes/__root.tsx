@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "TeacherRank" },
+      { name: "description", content: "TeacherRank is a respectful primary school and teacher rating platform for parents and guardians. It helps families browse schools and teachers, compare ratings" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "TeacherRank" },
+      { property: "og:description", content: "TeacherRank is a respectful primary school and teacher rating platform for parents and guardians. It helps families browse schools and teachers, compare ratings" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "TeacherRank" },
+      { name: "twitter:description", content: "TeacherRank is a respectful primary school and teacher rating platform for parents and guardians. It helps families browse schools and teachers, compare ratings" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/cGQlQRKYrAXxcHymqpJ3wZTv8nP2/social-images/social-1780196345710-ChatGPT_Image_May_31,_2026,_12_56_35_PM_(1).webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/cGQlQRKYrAXxcHymqpJ3wZTv8nP2/social-images/social-1780196345710-ChatGPT_Image_May_31,_2026,_12_56_35_PM_(1).webp" },
     ],
     links: [
       {
