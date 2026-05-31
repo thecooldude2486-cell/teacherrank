@@ -88,6 +88,26 @@ function SubmitSchoolFeedbackForm() {
 
     if (!schoolId) return toast.error("Please choose a school.");
 
+    // One review per school rule.
+    if (user) {
+      const school = primarySchools.find(s => s.id === schoolId);
+      const labelName = school ? `${school.name} — ${school.suburb}, ${school.state}` : null;
+      if (labelName) {
+        const { data: existing } = await supabase
+          .from("school_reviews")
+          .select("id,status")
+          .eq("user_id", user.id)
+          .eq("school_name", labelName)
+          .in("status", ["pending", "approved"])
+          .limit(1);
+        if (existing && existing.length > 0) {
+          toast.error("You have already submitted feedback. You can edit your existing feedback or wait for admin review.");
+          nav("/account");
+          return;
+        }
+      }
+    }
+
     if (!parentName.trim()) return toast.error("Please add a display name (e.g. 'A parent').");
     if (ALL_RATING_KEYS.some(k => ratings[k] === 0)) return toast.error("Please rate every category.");
     if (!agree) return toast.error("Please confirm the community guidelines.");
