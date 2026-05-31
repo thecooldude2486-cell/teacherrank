@@ -29,8 +29,9 @@ function SubmitFeedbackForm() {
   const presetTeacher = teachers.find(t => t.id === preset);
 
   const [teacherId, setTeacherId] = useState(preset);
-  const [schoolId, setSchoolId] = useState(presetTeacher?.school_id ?? "");
-  const [yearLevel, setYearLevel] = useState(presetTeacher?.year_level ?? "");
+  const [schoolId, setSchoolId] = useState("");
+  const [yearLevel, setYearLevel] = useState("");
+  void presetTeacher;
   const [ratings, setRatings] = useState<Record<string, number>>(
     Object.fromEntries(ALL_TEACHER_RATING_KEYS.map(k => [k, 0]))
   );
