@@ -29,8 +29,9 @@ function SubmitFeedbackForm() {
   const presetTeacher = teachers.find(t => t.id === preset);
 
   const [teacherId, setTeacherId] = useState(preset);
-  const [schoolId, setSchoolId] = useState(presetTeacher?.school_id ?? "");
-  const [yearLevel, setYearLevel] = useState(presetTeacher?.year_level ?? "");
+  const [schoolId, setSchoolId] = useState("");
+  const [yearLevel, setYearLevel] = useState("");
+  void presetTeacher;
   const [ratings, setRatings] = useState<Record<string, number>>(
     Object.fromEntries(ALL_TEACHER_RATING_KEYS.map(k => [k, 0]))
   );
@@ -165,15 +166,8 @@ function SubmitFeedbackForm() {
       <form onSubmit={submit} className="bg-card rounded-3xl border border-border/60 shadow-card p-6 md:p-8 space-y-6">
         <div className="grid md:grid-cols-3 gap-4">
           <Field label="Teacher">
-            <select value={teacherId} onChange={e => {
-              setTeacherId(e.target.value);
-              const t = teachers.find(x => x.id === e.target.value);
-              if (t) {
-                setSchoolId(t.school_id);
-                const grades = teacherGrades(t);
-                setYearLevel(grades[0] ?? t.year_level);
-              }
-            }} className={inputCls}>
+            <select value={teacherId} onChange={e => setTeacherId(e.target.value)} className={inputCls}>
+
               <option value="">Select teacher…</option>
               {teacherOptions.map(t => <option key={t.id} value={t.id}>{t.name} — {schoolName(t.school_id)}</option>)}
             </select>
