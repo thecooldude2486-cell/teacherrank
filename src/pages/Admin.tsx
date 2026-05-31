@@ -35,6 +35,7 @@ function AdminInner() {
   const [pendingSR, setPSR] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
   const [corrections, setCorrections] = useState<any[]>([]);
+  const [lockouts, setLockouts] = useState<any[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
 
