@@ -119,6 +119,7 @@ function AdminInner() {
     { id: "pending-sreviews", label: "Pending school reviews", count: pendingSR.length, icon: MessageSquareHeart },
     { id: "grade-corrections", label: "Grade corrections", count: corrections.length, icon: BookOpen },
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
+    { id: "suspicious", label: "Suspicious activity", count: lockouts.length, icon: ShieldAlert, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
   ];
 
