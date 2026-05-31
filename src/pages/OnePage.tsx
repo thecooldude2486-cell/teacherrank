@@ -13,6 +13,7 @@ import Account from "./Account";
 import Auth from "./Auth";
 import TeacherProfile from "./TeacherProfile";
 import SchoolProfile from "./SchoolProfile";
+import Guidelines from "./Guidelines";
 
 
 type Section = { id: string; path: string; label: string; Component: React.ComponentType; when?: boolean };
@@ -45,6 +46,7 @@ const sections: Section[] = [
   { id: "submit-school", path: "/submit-school", label: "Submit School Feedback", Component: SubmitSchoolFeedback },
   { id: "add-teacher", path: "/add-teacher", label: "Add Teacher", Component: AddTeacher },
   { id: "admin", path: "/admin", label: "Admin", Component: Admin },
+  { id: "guidelines", path: "/guidelines", label: "Community Guidelines", Component: Guidelines },
   { id: "account", path: "/account", label: "My account", Component: Account },
   { id: "auth", path: "/auth", label: "Log in / Sign up", Component: Auth },
 ];

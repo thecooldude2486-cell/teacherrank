@@ -27,6 +27,7 @@ export default function AppShell() {
               <Route path="/admin" element={<OnePage />} />
               <Route path="/account" element={<OnePage />} />
               <Route path="/auth" element={<OnePage />} />
+              <Route path="/guidelines" element={<OnePage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

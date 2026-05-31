@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
-import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search, BookOpen } from "lucide-react";
+import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search, BookOpen, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { addTeacherGrade } from "@/lib/mockData";
 
 
-type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "users";
+type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "suspicious" | "users";
 type UserRow = { id: string; email: string | null; display_name: string | null; is_admin: boolean };
 
 
@@ -35,22 +35,25 @@ function AdminInner() {
   const [pendingSR, setPSR] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
   const [corrections, setCorrections] = useState<any[]>([]);
+  const [lockouts, setLockouts] = useState<any[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
 
   const reload = async () => {
-    const [t, s, tr, sr, r, gc, profs, roles] = await Promise.all([
+    const [t, s, tr, sr, r, gc, lo, profs, roles] = await Promise.all([
       supabase.from("teachers").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("schools").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("teacher_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("school_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("reports").select("*").order("created_at", { ascending: false }),
       supabase.from("teacher_grade_corrections" as any).select("*").eq("status", "pending").order("created_at", { ascending: false }),
+      supabase.from("submission_lockouts" as any).select("*").order("locked_until", { ascending: false }),
       supabase.from("profiles").select("id,email,display_name").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
     ]);
     setPT(t.data ?? []); setPS(s.data ?? []); setPTR(tr.data ?? []); setPSR(sr.data ?? []); setReports(r.data ?? []);
     setCorrections((gc as any).data ?? []);
+    setLockouts((lo as any).data ?? []);
     const adminIds = new Set((roles.data ?? []).map((x: any) => x.user_id));
     setUsers((profs.data ?? []).map((p: any) => ({ ...p, is_admin: adminIds.has(p.id) })));
   };
@@ -116,6 +119,7 @@ function AdminInner() {
     { id: "pending-sreviews", label: "Pending school reviews", count: pendingSR.length, icon: MessageSquareHeart },
     { id: "grade-corrections", label: "Grade corrections", count: corrections.length, icon: BookOpen },
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
+    { id: "suspicious", label: "Suspicious activity", count: lockouts.length, icon: ShieldAlert, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
   ];
 
@@ -296,6 +300,44 @@ function AdminInner() {
               />
             ))
           )}
+
+          {tab === "suspicious" && (
+            lockouts.length === 0 ? <EmptyState label="No suspicious activity recorded." /> :
+            lockouts.map(l => {
+              const until = new Date(l.locked_until);
+              const active = until.getTime() > Date.now();
+              const userLabel = users.find(u => u.id === l.user_id);
+              return (
+                <div key={l.user_id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-foreground truncate">
+                      {userLabel?.display_name || userLabel?.email || l.user_id}
+                      {active ? (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold uppercase tracking-wide">Locked</span>
+                      ) : (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-secondary text-foreground/70 text-[10px] font-semibold uppercase tracking-wide">Expired</span>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {l.reason || "No reason recorded"} · until {until.toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={async () => {
+                        const { error } = await supabase.from("submission_lockouts" as any).delete().eq("user_id", l.user_id);
+                        if (error) toast.error(error.message); else { toast.success("Lockout cleared."); reload(); }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg border border-border bg-card hover:bg-secondary transition-colors"
+                    >
+                      <X className="w-4 h-4" /> Clear lockout
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
 
           {tab === "users" && (
             <div className="p-5 md:p-6 space-y-4">

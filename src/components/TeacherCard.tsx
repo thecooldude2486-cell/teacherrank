@@ -23,13 +23,22 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
           <span className="text-xs font-medium px-3 py-1 rounded-full bg-secondary text-secondary-foreground">{teacher.class_type}</span>
         </div>
         <div className="flex items-center justify-between pt-4 border-t border-border/60">
-          <div className="flex items-center gap-2">
-            <StarRating value={stats.overall} />
-            <span className="text-sm font-semibold tabular-nums">{stats.overall || "—"}</span>
-          </div>
-          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
-            <MessageSquareHeart className="w-3.5 h-3.5" />{stats.count} review{stats.count === 1 ? "" : "s"}
-          </span>
+          {stats.count >= 3 ? (
+            <>
+              <div className="flex items-center gap-2">
+                <StarRating value={stats.overall} />
+                <span className="text-sm font-semibold tabular-nums">{stats.overall || "—"}</span>
+              </div>
+              <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                <MessageSquareHeart className="w-3.5 h-3.5" />{stats.count} review{stats.count === 1 ? "" : "s"}
+              </span>
+            </>
+          ) : (
+            <span className="text-xs font-medium text-muted-foreground inline-flex items-center gap-1">
+              <MessageSquareHeart className="w-3.5 h-3.5" />
+              Not enough reviews yet ({stats.count}/3)
+            </span>
+          )}
         </div>
         <div className="mt-3 text-xs text-muted-foreground inline-flex items-center gap-1">
           <MapPin className="w-3.5 h-3.5" />{teacher.location}

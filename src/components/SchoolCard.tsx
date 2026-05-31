@@ -35,13 +35,19 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
           <MapPin className="w-3 h-3" /> {school.suburb}, {school.state}
         </p>
 
-        <div className="flex items-center gap-2 mb-4">
-          <StarRating value={stats.overall} />
-          <span className="text-sm font-semibold tabular-nums">{stats.overall || "—"}</span>
-          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
-            <Users className="w-3 h-3" /> {stats.count} review{stats.count === 1 ? "" : "s"}
-          </span>
-        </div>
+        {stats.count >= 3 ? (
+          <div className="flex items-center gap-2 mb-4">
+            <StarRating value={stats.overall} />
+            <span className="text-sm font-semibold tabular-nums">{stats.overall || "—"}</span>
+            <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+              <Users className="w-3 h-3" /> {stats.count} review{stats.count === 1 ? "" : "s"}
+            </span>
+          </div>
+        ) : (
+          <div className="mb-4 text-xs font-medium text-muted-foreground inline-flex items-center gap-1">
+            <Users className="w-3 h-3" /> Not enough reviews yet ({stats.count}/3)
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-2 mb-5">
           <MiniStat label="Clean" value={stats.breakdown?.cleanliness ?? 0} />

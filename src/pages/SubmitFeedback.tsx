@@ -94,6 +94,24 @@ function SubmitFeedbackForm() {
       return;
     }
 
+    // One review per teacher rule.
+    if (user && teacherId) {
+      const t = teachers.find(x => x.id === teacherId);
+      const { data: existing } = await supabase
+        .from("teacher_reviews")
+        .select("id,status")
+        .eq("user_id", user.id)
+        .eq("teacher_name", t?.name ?? "")
+        .in("status", ["pending", "approved"])
+        .limit(1);
+      if (existing && existing.length > 0) {
+        toast.error("You have already submitted feedback. You can edit your existing feedback or wait for admin review.");
+        nav("/account");
+        return;
+      }
+    }
+
+
     if (!teacherId || !schoolId || !yearLevel) return toast.error("Please complete teacher, school, and year level.");
     const missing = ALL_TEACHER_RATING_KEYS.filter(k => !ratings[k] || ratings[k] <= 0);
     if (missing.length) {
@@ -158,9 +176,14 @@ function SubmitFeedbackForm() {
       <h1 className="text-3xl md:text-4xl mb-2">Submit teacher review</h1>
       <p className="text-muted-foreground mb-8">Share constructive, fair feedback about your child's classroom learning experience. All feedback is moderated before publishing.</p>
 
-      <div className="bg-accent-soft border border-accent/30 rounded-2xl p-4 mb-8 flex gap-3">
+      <div className="bg-accent-soft border border-accent/30 rounded-2xl p-4 mb-4 flex gap-3">
         <ShieldCheck className="w-5 h-5 text-[hsl(var(--heading))] shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground/80">Please don't include student names, photos, or private information about children or families. Be specific and kind.</p>
+        <p className="text-sm text-foreground/80">
+          Please keep feedback respectful, fair, and focused on learning experience. Do not include children's names, private information, personal attacks, or unsupported accusations.
+        </p>
+      </div>
+      <div className="bg-secondary/60 border border-border/60 rounded-2xl p-3 mb-8 text-xs text-muted-foreground">
+        Your review will be saved as pending and reviewed by a moderator before it appears publicly or affects rankings.
       </div>
 
       <form onSubmit={submit} className="bg-card rounded-3xl border border-border/60 shadow-card p-6 md:p-8 space-y-6">

@@ -96,9 +96,18 @@ export default function TeacherProfile() {
             </div>
           </div>
           <div className="bg-card rounded-2xl p-5 text-center min-w-[140px] border border-border/60">
-            <div className="text-4xl font-bold tabular-nums" style={{ fontFamily: "Fraunces, serif" }}>{stats.overall || "—"}</div>
-            <StarRating value={stats.overall} className="justify-center my-1" />
-            <div className="text-xs text-muted-foreground">{stats.count} parent review{stats.count === 1 ? "" : "s"}</div>
+            {stats.count >= 3 ? (
+              <>
+                <div className="text-4xl font-bold tabular-nums" style={{ fontFamily: "Fraunces, serif" }}>{stats.overall || "—"}</div>
+                <StarRating value={stats.overall} className="justify-center my-1" />
+                <div className="text-xs text-muted-foreground">{stats.count} parent review{stats.count === 1 ? "" : "s"}</div>
+              </>
+            ) : (
+              <>
+                <div className="text-sm font-semibold text-foreground/80">Not enough reviews yet</div>
+                <div className="text-xs text-muted-foreground mt-2">{stats.count}/3 approved reviews needed for a ranking</div>
+              </>
+            )}
           </div>
         </div>
       </header>
