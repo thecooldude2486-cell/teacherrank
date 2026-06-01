@@ -66,6 +66,27 @@ export default function Auth() {
     return () => clearInterval(t);
   }, [paused]);
 
+  // If the user is already authenticated (or becomes authenticated while on this page),
+  // take them straight to their account.
+  useEffect(() => {
+    if (user) nav("/account", { replace: true });
+  }, [user, nav]);
+
+  // When the tab regains focus (e.g. after returning from the NSW portal), re-check
+  // the session and bounce to /account immediately if signed in.
+  useEffect(() => {
+    const verify = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) nav("/account", { replace: true });
+    };
+    window.addEventListener("focus", verify);
+    document.addEventListener("visibilitychange", verify);
+    return () => {
+      window.removeEventListener("focus", verify);
+      document.removeEventListener("visibilitychange", verify);
+    };
+  }, [nav]);
+
   const go = (dir: number) => setSlide(s => (s + dir + slides.length) % slides.length);
 
   const submit = async (e: React.FormEvent) => {
