@@ -49,6 +49,7 @@ export default function VerificationPanel() {
     setBusy(false);
     if (error) return toast.error(error.message);
     setStep("sent");
+    setCountdown(60);
     toast.success(`Email sent to ${user.email}. Click the link in the email, or paste the 6-digit code below.`);
   };
 
