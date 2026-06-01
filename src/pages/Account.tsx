@@ -105,12 +105,18 @@ function Inner() {
         </div>
       </section>
 
+      {/* Verification */}
+      <div className="mb-8">
+        <VerificationPanel />
+      </div>
+
       {/* Quick actions */}
       <section className="grid sm:grid-cols-3 gap-3 mb-8">
         <QuickAction to="/submit" icon={MessageSquareHeart} label="Submit a teacher review" />
         <QuickAction to="/submit-school" icon={SchoolIcon} label="Submit a school review" />
         <QuickAction to="/add-teacher" icon={Plus} label="Suggest a new teacher" />
       </section>
+
 
       {/* Lists */}
       <div className="grid md:grid-cols-2 gap-5">
