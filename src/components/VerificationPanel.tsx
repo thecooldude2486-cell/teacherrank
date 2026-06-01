@@ -150,10 +150,11 @@ export default function VerificationPanel() {
                 <button
                   type="button"
                   onClick={sendCode}
-                  disabled={busy}
-                  className="w-full py-2 text-sm text-foreground/70 hover:text-foreground transition"
+                  disabled={busy || countdown > 0}
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-border bg-secondary/60 text-foreground/80 hover:bg-secondary hover:text-foreground disabled:opacity-40 transition"
                 >
-                  Resend code
+                  <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} />
+                  {countdown > 0 ? `Resend code in ${countdown}s` : (busy ? "Sending…" : "Resend code")}
                 </button>
               </form>
             )}
