@@ -126,7 +126,10 @@ function Disclaimer() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-xs rounded-lg border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
-      <p className="text-xs leading-relaxed text-muted-foreground">
+      <p className="text-xs font-bold uppercase text-red-500">
+        DISCLAIMER!
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
         TeacherRank is not affiliated with NSW Department of Education or any individual school. Reviews are submitted by users and moderated before publication.
       </p>
       <button
