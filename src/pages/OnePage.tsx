@@ -85,8 +85,10 @@ export default function OnePage() {
     });
   }, [hash, pathname, teacherMatch, schoolMatch]);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToSectionTop = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -103,12 +105,12 @@ export default function OnePage() {
             <div className="container flex justify-center pb-12">
               <button
                 type="button"
-                onClick={scrollToTop}
-                aria-label="Back to top"
+                onClick={() => scrollToSectionTop(id)}
+                aria-label={`Back to top of ${label}`}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all text-sm font-medium"
               >
                 <ArrowUp className="w-4 h-4" />
-                Back to top
+                Back to top of {label}
               </button>
             </div>
           )}
