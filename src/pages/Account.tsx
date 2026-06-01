@@ -5,6 +5,7 @@ import AuthGate from "@/components/AuthGate";
 import { LogOut, ShieldCheck, MessageSquareHeart, School as SchoolIcon, GraduationCap, Sparkles, Clock, CheckCircle2, XCircle, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import VerificationPanel from "@/components/VerificationPanel";
 
 type Row = { id: string; status: string; created_at: string; label: string };
 
@@ -104,12 +105,18 @@ function Inner() {
         </div>
       </section>
 
+      {/* Verification */}
+      <div className="mb-8">
+        <VerificationPanel />
+      </div>
+
       {/* Quick actions */}
       <section className="grid sm:grid-cols-3 gap-3 mb-8">
         <QuickAction to="/submit" icon={MessageSquareHeart} label="Submit a teacher review" />
         <QuickAction to="/submit-school" icon={SchoolIcon} label="Submit a school review" />
         <QuickAction to="/add-teacher" icon={Plus} label="Suggest a new teacher" />
       </section>
+
 
       {/* Lists */}
       <div className="grid md:grid-cols-2 gap-5">

@@ -10,6 +10,7 @@ import { StarInput } from "@/components/StarRating";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
+import VerificationGate from "@/components/VerificationGate";
 
 const emptyRatings = (): Ratings => {
   const o = {} as Ratings;
@@ -58,7 +59,9 @@ const avg = (r: Ratings, keys: readonly string[]) => {
 export default function SubmitSchoolFeedback() {
   return (
     <AuthGate message="Sign in to submit a school review. Reviews are moderated before being published.">
-      <SubmitSchoolFeedbackForm />
+      <VerificationGate>
+        <SubmitSchoolFeedbackForm />
+      </VerificationGate>
     </AuthGate>
   );
 }

@@ -46,7 +46,7 @@ const slides = [
   },
 ];
 
-const PORTAL_URL = "https://portal.education.nsw.gov.au/studentPortal/index.html";
+
 
 
 export default function Auth() {
@@ -72,21 +72,6 @@ export default function Auth() {
     if (user) nav("/account", { replace: true });
   }, [user, nav]);
 
-  // When the tab regains focus (e.g. after returning from the NSW portal), re-check
-  // the session and bounce to /account immediately if signed in.
-  useEffect(() => {
-    const verify = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) nav("/account", { replace: true });
-    };
-    window.addEventListener("focus", verify);
-    document.addEventListener("visibilitychange", verify);
-    return () => {
-      window.removeEventListener("focus", verify);
-      document.removeEventListener("visibilitychange", verify);
-    };
-  }, [nav]);
-
   const go = (dir: number) => setSlide(s => (s + dir + slides.length) % slides.length);
 
   const submit = async (e: React.FormEvent) => {
@@ -97,8 +82,6 @@ export default function Auth() {
       return;
     }
 
-    // Open the new tab synchronously inside the user gesture so popup blockers allow it.
-    const portalTab = window.open("about:blank", "_blank");
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -116,27 +99,12 @@ export default function Auth() {
         if (error) throw error;
         toast.success("Welcome back!");
       }
-      if (portalTab && !portalTab.closed) {
-        portalTab.location.href = PORTAL_URL;
-        toast.info("Finish logging in at the NSW portal — we'll take you to your account when you're done.");
-        // Treat closing the portal tab as proof of successful login.
-        const watcher = setInterval(() => {
-          if (portalTab.closed) {
-            clearInterval(watcher);
-            toast.success("Portal login verified. Welcome!");
-            nav("/account");
-          }
-        }, 800);
-      } else {
-        // Popup blocked — fall back to navigating in-place.
-        nav("/account");
-      }
-
+      nav("/account");
     } catch (err: any) {
-      if (portalTab && !portalTab.closed) portalTab.close();
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
   };
+
 
 
 

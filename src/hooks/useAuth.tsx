@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isAllowedEduEmail, redirectToDoeLogin } from "@/lib/authPolicy";
@@ -8,10 +8,15 @@ type AuthCtx = {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  isVerified: boolean;
+  refreshVerification: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
-const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, isAdmin: false, signOut: async () => {} });
+const Ctx = createContext<AuthCtx>({
+  user: null, session: null, loading: true, isAdmin: false, isVerified: false,
+  refreshVerification: async () => {}, signOut: async () => {},
+});
 
 async function enforceEduEmail(s: Session | null): Promise<Session | null> {
   const email = s?.user?.email;
@@ -28,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
@@ -53,9 +59,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [user]);
 
+  const refreshVerification = useCallback(async () => {
+    if (!user) { setIsVerified(false); return; }
+    const { data } = await supabase
+      .from("verification_requests" as any)
+      .select("status")
+      .eq("user_id", user.id)
+      .eq("status", "approved")
+      .limit(1);
+    setIsVerified(!!(data && data.length > 0));
+  }, [user]);
+
+  useEffect(() => { refreshVerification(); }, [refreshVerification]);
+
   const signOut = async () => { await supabase.auth.signOut(); };
 
-  return <Ctx.Provider value={{ user, session, loading, isAdmin, signOut }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ user, session, loading, isAdmin, isVerified, refreshVerification, signOut }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export const useAuth = () => useContext(Ctx);

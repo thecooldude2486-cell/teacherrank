@@ -12,11 +12,14 @@ import { ShieldCheck, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
+import VerificationGate from "@/components/VerificationGate";
 
 export default function SubmitFeedback() {
   return (
     <AuthGate message="Sign in to submit a teacher review. Reviews are moderated before being published.">
-      <SubmitFeedbackForm />
+      <VerificationGate>
+        <SubmitFeedbackForm />
+      </VerificationGate>
     </AuthGate>
   );
 }
