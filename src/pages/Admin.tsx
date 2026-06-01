@@ -38,9 +38,10 @@ function AdminInner() {
   const [lockouts, setLockouts] = useState<any[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
+  const [verifications, setVerifications] = useState<any[]>([]);
 
   const reload = async () => {
-    const [t, s, tr, sr, r, gc, lo, profs, roles] = await Promise.all([
+    const [t, s, tr, sr, r, gc, lo, profs, roles, vr] = await Promise.all([
       supabase.from("teachers").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("schools").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("teacher_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
@@ -50,10 +51,12 @@ function AdminInner() {
       supabase.from("submission_lockouts" as any).select("*").order("locked_until", { ascending: false }),
       supabase.from("profiles").select("id,email,display_name").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
+      supabase.from("verification_requests" as any).select("*").eq("status", "pending").order("created_at", { ascending: false }),
     ]);
     setPT(t.data ?? []); setPS(s.data ?? []); setPTR(tr.data ?? []); setPSR(sr.data ?? []); setReports(r.data ?? []);
     setCorrections((gc as any).data ?? []);
     setLockouts((lo as any).data ?? []);
+    setVerifications((vr as any).data ?? []);
     const adminIds = new Set((roles.data ?? []).map((x: any) => x.user_id));
     setUsers((profs.data ?? []).map((p: any) => ({ ...p, is_admin: adminIds.has(p.id) })));
   };
