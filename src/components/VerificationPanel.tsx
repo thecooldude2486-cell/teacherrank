@@ -13,17 +13,35 @@ export default function VerificationPanel() {
 
   useEffect(() => { setLoading(false); }, [user]);
 
+  // Auto-verify when the user lands back here after clicking the magic link.
+  useEffect(() => {
+    if (!user || isVerified) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("verify") === "1") {
+      (async () => {
+        const { error } = await supabase.rpc("mark_self_verified" as any);
+        if (!error) {
+          toast.success("Your account is now verified.");
+          await refreshVerification();
+        }
+        url.searchParams.delete("verify");
+        window.history.replaceState({}, "", url.toString());
+      })();
+    }
+  }, [user, isVerified, refreshVerification]);
+
   const sendCode = async () => {
     if (!user?.email) return;
     setBusy(true);
+    const redirectTo = `${window.location.origin}/account?verify=1`;
     const { error } = await supabase.auth.signInWithOtp({
       email: user.email,
-      options: { shouldCreateUser: false },
+      options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
     });
     setBusy(false);
     if (error) return toast.error(error.message);
     setStep("sent");
-    toast.success(`Verification code sent to ${user.email}. Check your inbox.`);
+    toast.success(`Email sent to ${user.email}. Click the link in the email, or paste the 6-digit code below.`);
   };
 
   const confirmCode = async (e: React.FormEvent) => {
