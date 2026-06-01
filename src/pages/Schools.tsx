@@ -36,11 +36,19 @@ export default function Schools() {
           <h1 className="text-3xl md:text-4xl mb-2">Primary school rankings</h1>
           <p className="text-muted-foreground">Overall scores based on parent feedback across learning, environment, location and community.</p>
         </div>
-        <Link to="/submit-school"
+        <Link to={user ? "/submit-school" : "/auth"}
+          onClick={(e) => {
+            if (!user) return;
+            e.preventDefault();
+            const el = document.getElementById("submit-school");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            else navigate("/submit-school");
+          }}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition-opacity self-start">
           <MessageSquareHeart className="w-4 h-4" /> Submit School Feedback
         </Link>
       </header>
+
 
       <div className="bg-card rounded-3xl border border-border/60 p-4 mb-6 flex flex-col sm:flex-row gap-3">
         <div className="flex-1 inline-flex items-center gap-2 bg-secondary/60 rounded-full px-4">
