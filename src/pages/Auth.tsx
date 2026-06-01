@@ -46,7 +46,7 @@ const slides = [
   },
 ];
 
-const PORTAL_URL = "https://portal.education.nsw.gov.au/studentPortal/index.html";
+
 
 
 export default function Auth() {
