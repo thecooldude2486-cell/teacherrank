@@ -14,6 +14,13 @@ export default function VerificationPanel() {
 
   useEffect(() => { setLoading(false); }, [user]);
 
+  // Countdown timer for resend
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setInterval(() => setCountdown(c => c - 1), 1000);
+    return () => clearInterval(id);
+  }, [countdown]);
+
   // Auto-verify when the user lands back here after clicking the magic link.
   useEffect(() => {
     if (!user || isVerified) return;
