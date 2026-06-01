@@ -305,6 +305,45 @@ function AdminInner() {
             ))
           )}
 
+          {tab === "verifications" && (
+            verifications.length === 0 ? <EmptyState label="No verification requests pending." /> :
+            verifications.map((v: any) => {
+              const u = users.find(x => x.id === v.user_id);
+              return (
+                <div key={v.id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-start justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                  <div className="min-w-0 space-y-1">
+                    <div className="font-semibold text-foreground">
+                      {u?.display_name || u?.email || v.user_id}
+                    </div>
+                    <div className="text-sm text-foreground/80">
+                      <span className="text-muted-foreground">School:</span> {v.school_name}
+                    </div>
+                    <div className="text-sm text-foreground/80">
+                      <span className="text-muted-foreground">DoE email/username:</span> {v.doe_identifier}
+                    </div>
+                    {v.note && (
+                      <div className="text-sm text-foreground/70 italic">
+                        "{v.note}"
+                      </div>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      Submitted {new Date(v.created_at).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => setStatus("verification_requests", v.id, "approved")} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 transition-colors">
+                      <Check className="w-4 h-4" /> Approve
+                    </button>
+                    <button onClick={() => setStatus("verification_requests", v.id, "rejected")} className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg border border-border bg-card hover:bg-secondary transition-colors">
+                      <X className="w-4 h-4" /> Reject
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+
           {tab === "suspicious" && (
             lockouts.length === 0 ? <EmptyState label="No suspicious activity recorded." /> :
             lockouts.map(l => {
