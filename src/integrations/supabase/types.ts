@@ -446,6 +446,48 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_requests: {
+        Row: {
+          confirmed: boolean
+          created_at: string
+          doe_identifier: string
+          id: string
+          note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          school_name: string
+          status: Database["public"]["Enums"]["submission_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confirmed?: boolean
+          created_at?: string
+          doe_identifier: string
+          id?: string
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_name: string
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confirmed?: boolean
+          created_at?: string
+          doe_identifier?: string
+          id?: string
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_name?: string
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -458,6 +500,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_verified: { Args: { _user_id: string }; Returns: boolean }
       lock_me_out: {
         Args: { _minutes: number; _reason: string }
         Returns: string
