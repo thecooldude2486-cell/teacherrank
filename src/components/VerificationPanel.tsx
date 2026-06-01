@@ -21,36 +21,18 @@ export default function VerificationPanel() {
     return () => clearInterval(id);
   }, [countdown]);
 
-  // Auto-verify when the user lands back here after clicking the magic link.
-  useEffect(() => {
-    if (!user || isVerified) return;
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("verify") === "1") {
-      (async () => {
-        const { error } = await supabase.rpc("mark_self_verified" as any);
-        if (!error) {
-          toast.success("Your account is now verified.");
-          await refreshVerification();
-        }
-        url.searchParams.delete("verify");
-        window.history.replaceState({}, "", url.toString());
-      })();
-    }
-  }, [user, isVerified, refreshVerification]);
-
   const sendCode = async () => {
     if (!user?.email) return;
     setBusy(true);
-    const redirectTo = `${window.location.origin}/account?verify=1`;
     const { error } = await supabase.auth.signInWithOtp({
       email: user.email,
-      options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
+      options: { shouldCreateUser: false },
     });
     setBusy(false);
     if (error) return toast.error(error.message);
     setStep("sent");
     setCountdown(60);
-    toast.success(`Email sent to ${user.email}. Click the link in the email, or paste the 6-digit code below.`);
+    toast.success(`Code request sent to ${user.email}. Enter the 6-digit code from the email below.`);
   };
 
   const confirmCode = async (e: React.FormEvent) => {
@@ -108,7 +90,7 @@ export default function VerificationPanel() {
                 <AlertTriangle className="w-5 h-5 text-[hsl(var(--sunny-foreground))] shrink-0 mt-0.5" />
                 <p className="text-sm leading-relaxed text-foreground/80">
                   We'll email a 6-digit code to <strong>{user?.email}</strong> to confirm you control this education account.
-                  Enter the code below to verify your TeacherRank account.
+                  Enter that code below to verify your TeacherRank account. Link redirects are no longer used here.
                 </p>
               </div>
             </div>
