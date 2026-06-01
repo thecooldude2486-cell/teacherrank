@@ -3,6 +3,7 @@ import { Search, Users, MessageSquareHeart, PlusCircle, ShieldCheck, Heart, Spar
 import { useMemo, useState, useRef, useEffect } from "react";
 import { teachers, teacherStats, schoolName } from "@/lib/mockData";
 import { primarySchools } from "@/lib/schoolsData";
+import { rankingScore } from "@/lib/ranking";
 import TeacherCard from "@/components/TeacherCard";
 
 export default function Home() {
