@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, MessageSquareHeart } from "lucide-react";
 import { primarySchools, schoolStats } from "@/lib/schoolsData";
+import { rankingScore } from "@/lib/ranking";
 import SchoolCard from "@/components/SchoolCard";
 
 export default function Schools() {
@@ -22,7 +23,7 @@ export default function Schools() {
         );
       })
       .map(s => ({ s, stats: schoolStats(s.id) }))
-      .sort((a, b) => b.stats.overall - a.stats.overall);
+      .sort((a, b) => rankingScore(b.stats.overall, b.stats.count) - rankingScore(a.stats.overall, a.stats.count));
   }, [q, type]);
 
   return (

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { teachers, schools, teacherStats, schoolName } from "@/lib/mockData";
+import { rankingScore } from "@/lib/ranking";
 import TeacherCard from "@/components/TeacherCard";
 import { SlidersHorizontal, Search } from "lucide-react";
 
@@ -36,7 +37,7 @@ export default function Teachers() {
       .filter(({ s }) => s.overall >= minRating);
 
     filtered.sort((a, b) => {
-      if (sort === "rating") return b.s.overall - a.s.overall;
+      if (sort === "rating") return rankingScore(b.s.overall, b.s.count) - rankingScore(a.s.overall, a.s.count);
       if (sort === "reviews") return b.s.count - a.s.count;
       return b.t.created_at.localeCompare(a.t.created_at);
     });
