@@ -10,6 +10,7 @@ import { StarInput } from "@/components/StarRating";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
+import VerificationGate from "@/components/VerificationGate";
 
 const emptyRatings = (): Ratings => {
   const o = {} as Ratings;
