@@ -505,6 +505,7 @@ export type Database = {
         Args: { _minutes: number; _reason: string }
         Returns: string
       }
+      mark_self_verified: { Args: never; Returns: undefined }
       my_lockout: { Args: never; Returns: string }
     }
     Enums: {
