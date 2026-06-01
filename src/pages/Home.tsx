@@ -49,7 +49,7 @@ export default function Home() {
     return [...teachers]
       .filter(t => t.status === "approved")
       .map(t => ({ t, s: teacherStats(t.id) }))
-      .sort((a, b) => b.s.overall - a.s.overall)
+      .sort((a, b) => rankingScore(b.s.overall, b.s.count) - rankingScore(a.s.overall, a.s.count))
       .slice(0, 3)
       .map(({ t }) => t);
   }, []);
