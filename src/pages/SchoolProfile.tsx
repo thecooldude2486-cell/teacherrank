@@ -219,7 +219,14 @@ export default function SchoolProfile() {
         <aside>
           <div className="sticky top-24 space-y-4">
             <h2 className="text-2xl">Student reviews</h2>
-            {reviews.length === 0 ? (
+            {!user ? (
+              <div className="bg-card rounded-3xl p-8 text-center border border-border/60">
+                <p className="text-sm text-muted-foreground mb-4">Sign in to read student reviews and share your own.</p>
+                <Link to="/auth" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+                  Log in or sign up
+                </Link>
+              </div>
+            ) : reviews.length === 0 ? (
               <div className="bg-card rounded-3xl p-8 text-center border border-border/60 text-muted-foreground">
                 No reviews yet.
               </div>
