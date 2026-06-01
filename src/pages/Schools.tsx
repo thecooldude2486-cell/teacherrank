@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Search, MessageSquareHeart } from "lucide-react";
 import { primarySchools, schoolStats } from "@/lib/schoolsData";
 import { rankingScore } from "@/lib/ranking";
 import SchoolCard from "@/components/SchoolCard";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Schools() {
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [type, setType] = useState("all");
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const ranked = useMemo(() => {
     return primarySchools
