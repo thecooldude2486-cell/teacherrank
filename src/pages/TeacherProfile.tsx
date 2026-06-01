@@ -162,7 +162,14 @@ export default function TeacherProfile() {
         <aside>
           <div className="sticky top-24 space-y-4">
             <h2 className="text-2xl">Parent feedback</h2>
-            {teacherReviews.length === 0 ? (
+            {!user ? (
+              <div className="bg-card rounded-3xl p-8 text-center border border-border/60">
+                <p className="text-sm text-muted-foreground mb-4">Sign in to read parent reviews and share your own.</p>
+                <Link to="/auth" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+                  Log in or sign up
+                </Link>
+              </div>
+            ) : teacherReviews.length === 0 ? (
               <div className="bg-card rounded-3xl p-8 text-center border border-border/60 text-muted-foreground">
                 No reviews yet. Be the first to share constructive feedback.
               </div>
