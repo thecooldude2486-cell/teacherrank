@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -112,6 +113,35 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function Disclaimer() {
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("disclaimer-read") === "true") {
+      setDismissed(true);
+    }
+  }, []);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 max-w-xs rounded-lg border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        TeacherRank is not affiliated with NSW Department of Education or any individual school. Reviews are submitted by users and moderated before publication.
+      </p>
+      <button
+        onClick={() => {
+          setDismissed(true);
+          localStorage.setItem("disclaimer-read", "true");
+        }}
+        className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        I have read this disclaimer
+      </button>
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -119,6 +149,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Disclaimer />
     </QueryClientProvider>
   );
 }
