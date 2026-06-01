@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { ShieldCheck, CheckCircle2, Mail, AlertTriangle } from "lucide-react";
+import { ShieldCheck, CheckCircle2, Mail, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function VerificationPanel() {
   const { user, isVerified, refreshVerification } = useAuth();
@@ -10,8 +10,16 @@ export default function VerificationPanel() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => { setLoading(false); }, [user]);
+
+  // Countdown timer for resend
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setInterval(() => setCountdown(c => c - 1), 1000);
+    return () => clearInterval(id);
+  }, [countdown]);
 
   // Auto-verify when the user lands back here after clicking the magic link.
   useEffect(() => {
@@ -41,6 +49,7 @@ export default function VerificationPanel() {
     setBusy(false);
     if (error) return toast.error(error.message);
     setStep("sent");
+    setCountdown(60);
     toast.success(`Email sent to ${user.email}. Click the link in the email, or paste the 6-digit code below.`);
   };
 
@@ -141,10 +150,11 @@ export default function VerificationPanel() {
                 <button
                   type="button"
                   onClick={sendCode}
-                  disabled={busy}
-                  className="w-full py-2 text-sm text-foreground/70 hover:text-foreground transition"
+                  disabled={busy || countdown > 0}
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-border bg-secondary/60 text-foreground/80 hover:bg-secondary hover:text-foreground disabled:opacity-40 transition"
                 >
-                  Resend code
+                  <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} />
+                  {countdown > 0 ? `Resend code in ${countdown}s` : (busy ? "Sending…" : "Resend code")}
                 </button>
               </form>
             )}
