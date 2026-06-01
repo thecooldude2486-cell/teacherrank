@@ -72,6 +72,8 @@ export default function Auth() {
     if (user) nav("/account", { replace: true });
   }, [user, nav]);
 
+  const go = (dir: number) => setSlide(s => (s + dir + slides.length) % slides.length);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Only enforce the education email check on signup. Existing accounts can log in directly.
