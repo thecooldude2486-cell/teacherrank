@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { ShieldCheck, CheckCircle2, Mail, AlertTriangle } from "lucide-react";
+import { ShieldCheck, CheckCircle2, Mail, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function VerificationPanel() {
   const { user, isVerified, refreshVerification } = useAuth();
@@ -10,6 +10,7 @@ export default function VerificationPanel() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => { setLoading(false); }, [user]);
 
