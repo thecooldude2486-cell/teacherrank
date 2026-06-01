@@ -5,6 +5,7 @@ import AuthGate from "@/components/AuthGate";
 import { LogOut, ShieldCheck, MessageSquareHeart, School as SchoolIcon, GraduationCap, Sparkles, Clock, CheckCircle2, XCircle, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import VerificationPanel from "@/components/VerificationPanel";
 
 type Row = { id: string; status: string; created_at: string; label: string };
 
