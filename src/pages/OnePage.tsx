@@ -73,16 +73,22 @@ export default function OnePage() {
     else fromPath = sections.find(s => s.path === pathname)?.id;
 
     const id = fromHash || fromPath || "home";
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else if (id === "home") {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-      });
-    });
+
+    const scroll = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (id === "home") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        // Fallback: scroll to top if target section isn't found
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    // Allow the DOM to fully settle before scrolling
+    const timer = setTimeout(scroll, 100);
+    return () => clearTimeout(timer);
   }, [hash, pathname, teacherMatch, schoolMatch]);
 
   const scrollToSectionTop = (id: string) => {
