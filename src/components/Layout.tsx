@@ -63,17 +63,14 @@ export default function Layout() {
               {links.map(l => {
                 const Icon = l.icon;
                 return (
-                  <NavLink key={l.to} to={l.to}
-                    onClick={() => { setOpen(false); scrollToSection(l.id); }}
-                    className={({ isActive }) => cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-colors",
-                      isActive ? "bg-primary-soft text-primary" : "hover:bg-secondary"
-                    )}>
+                  <Link key={l.to} to={l.to}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary transition-colors">
                     <span className="w-8 h-8 rounded-xl bg-secondary grid place-items-center">
                       <Icon className="w-4 h-4" />
                     </span>
                     {l.label}
-                  </NavLink>
+                  </Link>
                 );
               })}
               {user ? (
