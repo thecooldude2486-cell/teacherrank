@@ -1,7 +1,6 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { GraduationCap, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 const links = [
@@ -13,21 +12,9 @@ const links = [
   { to: "/admin", label: "Admin", icon: ShieldCheck },
 ];
 
-
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
-
-
-  // Smooth-scroll to the matching section on the one-page route.
-  const scrollToSection = (id: string) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
