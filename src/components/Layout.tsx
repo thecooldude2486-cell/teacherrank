@@ -1,32 +1,20 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { GraduationCap, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
 const links = [
-  { to: "/#teachers", id: "teachers", label: "Browse Teachers", icon: Users },
-  { to: "/#schools", id: "schools", label: "School Rankings", icon: Building2 },
-  { to: "/#submit", id: "submit", label: "Submit Feedback", icon: MessageSquarePlus },
-  { to: "/#add-teacher", id: "add-teacher", label: "Add Teacher", icon: UserPlus },
-  { to: "/#guidelines", id: "guidelines", label: "Community Guidelines", icon: BookOpen },
-  { to: "/#admin", id: "admin", label: "Admin", icon: ShieldCheck },
+  { to: "/teachers", label: "Browse Teachers", icon: Users },
+  { to: "/schools", label: "School Rankings", icon: Building2 },
+  { to: "/submit", label: "Submit Feedback", icon: MessageSquarePlus },
+  { to: "/add-teacher", label: "Add Teacher", icon: UserPlus },
+  { to: "/guidelines", label: "Community Guidelines", icon: BookOpen },
+  { to: "/admin", label: "Admin", icon: ShieldCheck },
 ];
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
-
-
-  // Smooth-scroll to the matching section on the one-page route.
-  const scrollToSection = (id: string) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -75,17 +63,14 @@ export default function Layout() {
               {links.map(l => {
                 const Icon = l.icon;
                 return (
-                  <NavLink key={l.to} to={l.to}
-                    onClick={() => { setOpen(false); scrollToSection(l.id); }}
-                    className={({ isActive }) => cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-colors",
-                      isActive ? "bg-primary-soft text-primary" : "hover:bg-secondary"
-                    )}>
+                  <Link key={l.to} to={l.to}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary transition-colors">
                     <span className="w-8 h-8 rounded-xl bg-secondary grid place-items-center">
                       <Icon className="w-4 h-4" />
                     </span>
                     {l.label}
-                  </NavLink>
+                  </Link>
                 );
               })}
               {user ? (
