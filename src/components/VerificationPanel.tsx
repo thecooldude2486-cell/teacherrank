@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { ShieldCheck, CheckCircle2, Mail, AlertTriangle, RefreshCw } from "lucide-react";
+import { ShieldCheck, CheckCircle2, Mail, X } from "lucide-react";
 
 /** Debug logger — check the browser console for [VERIFY] lines to trace the flow. */
 function vlog(step: string, detail?: unknown) {
@@ -12,11 +12,10 @@ function vlog(step: string, detail?: unknown) {
 
 export default function VerificationPanel() {
   const { user, isVerified, refreshVerification } = useAuth();
-  const [step, setStep] = useState<"idle" | "sent">("idle");
-  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(0);
+  const [showSentDialog, setShowSentDialog] = useState(false);
   const handledRedirect = useRef(false);
 
   useEffect(() => { setLoading(false); }, [user]);
@@ -35,37 +34,37 @@ export default function VerificationPanel() {
       const params = new URLSearchParams(hash.replace(/^#/, ""));
       const desc = params.get("error_description") || params.get("error");
       vlog("redirect returned an auth error", { hash, desc });
-      if (desc) toast.error(`Verification link problem: ${desc.replace(/\+/g, " ")}`);
+      if (desc) toast.error(`Login link problem: ${desc.replace(/\+/g, " ")}`);
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
 
-  // After clicking the email link the user lands on /account?verify=1 — auto-verify here.
+  // After clicking the email link the user lands on /account?verify=1 — auto-link the session.
   useEffect(() => {
     if (!user || isVerified || handledRedirect.current) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("verify") !== "1") return;
     handledRedirect.current = true;
-    vlog("returned from email link with verify=1, marking verified", { userId: user.id, email: user.email });
+    vlog("returned from email link with verify=1, marking account active", { userId: user.id, email: user.email });
     (async () => {
       const { error } = await supabase.rpc("mark_self_verified" as any);
       if (error) {
         vlog("mark_self_verified FAILED", error);
-        toast.error(`Could not complete verification: ${error.message}`);
+        toast.error(`Could not finish sign-in: ${error.message}`);
         return;
       }
       vlog("mark_self_verified OK");
       window.history.replaceState({}, "", window.location.pathname);
-      toast.success("Email confirmed — your account is now verified!");
+      toast.success("You're signed in — welcome to your account!");
       await refreshVerification();
     })();
   }, [user, isVerified, refreshVerification]);
 
-  const sendCode = async () => {
-    if (!user?.email) { vlog("sendCode aborted — no user email"); return; }
+  const sendLink = async () => {
+    if (!user?.email) { vlog("sendLink aborted — no user email"); return; }
     setBusy(true);
     const redirectTo = `${window.location.origin}/account?verify=1`;
-    vlog("requesting verification email", { email: user.email, redirectTo });
+    vlog("requesting sign-in email link", { email: user.email, redirectTo });
     const { data, error } = await supabase.auth.signInWithOtp({
       email: user.email,
       options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
@@ -76,40 +75,8 @@ export default function VerificationPanel() {
       return toast.error(`Email send failed: ${error.message}`);
     }
     vlog("signInWithOtp OK — email accepted by auth server", data);
-    setStep("sent");
     setCountdown(60);
-    toast.success(`Email sent to ${user.email}. Click the link inside — it brings you straight back here and verifies you.`);
-  };
-
-  const confirmCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.email) return;
-    const token = code.trim();
-    if (token.length < 6) return toast.error("Enter the 6-digit code from your email.");
-    setBusy(true);
-    vlog("verifying typed code", { email: user.email, tokenLength: token.length });
-    const { error } = await supabase.auth.verifyOtp({
-      email: user.email,
-      token,
-      type: "email",
-    });
-    if (error) {
-      setBusy(false);
-      vlog("verifyOtp FAILED", { message: error.message, status: (error as any).status, code: (error as any).code });
-      return toast.error(error.message);
-    }
-    vlog("verifyOtp OK");
-
-    const { error: rpcErr } = await supabase.rpc("mark_self_verified" as any);
-    setBusy(false);
-    if (rpcErr) {
-      vlog("mark_self_verified FAILED", rpcErr);
-      return toast.error(rpcErr.message);
-    }
-    vlog("mark_self_verified OK");
-    toast.success("Your account is now verified.");
-    setCode(""); setStep("idle");
-    await refreshVerification();
+    setShowSentDialog(true);
   };
 
   if (loading) return null;
@@ -121,15 +88,15 @@ export default function VerificationPanel() {
           <span className="w-8 h-8 rounded-xl bg-primary-soft text-primary grid place-items-center">
             <ShieldCheck className="w-4 h-4" />
           </span>
-          <h2 className="font-semibold" style={{ fontFamily: "Fraunces, serif" }}>Email verification</h2>
+          <h2 className="font-semibold" style={{ fontFamily: "Fraunces, serif" }}>Account access</h2>
         </div>
         {isVerified ? (
           <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-primary-soft text-primary">
-            <CheckCircle2 className="w-3 h-3" /> Verified
+            <CheckCircle2 className="w-3 h-3" /> Active
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-secondary text-foreground/70">
-            Not verified
+            Inactive
           </span>
         )}
       </div>
@@ -137,72 +104,74 @@ export default function VerificationPanel() {
       <div className="p-6 space-y-5">
         {isVerified ? (
           <div className="rounded-2xl border border-primary/30 bg-primary-soft/60 p-4 text-sm text-foreground/80">
-            Your account is verified. You can now submit teacher and school reviews.
+            You're signed in and ready to submit teacher and school reviews.
           </div>
         ) : (
           <>
-            <div className="rounded-2xl border border-border/60 bg-secondary/30 p-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-[hsl(var(--sunny-foreground))] shrink-0 mt-0.5" />
-                <p className="text-sm leading-relaxed text-foreground/80">
-                  We'll email a verification link to <strong>{user?.email}</strong>.
-                  Click it and you'll be brought straight back to this page, verified automatically.
-                  If your email also shows a 6-digit code, you can type it below instead.
-                </p>
-              </div>
+            <div className="rounded-2xl border border-border/60 bg-secondary/30 p-4 text-sm leading-relaxed text-foreground/80">
+              We'll email a sign-in link to <strong>{user?.email}</strong>. Click the
+              link in your inbox, log in with your correct credentials, and you'll be
+              taken straight to your account where you can submit reviews.
             </div>
 
-            {step === "idle" ? (
-              <button
-                onClick={sendCode}
-                disabled={busy}
-                type="button"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 transition shadow-sm"
-              >
-                <Mail className="w-4 h-4" />
-                {busy ? "Sending…" : "Send verification email"}
-              </button>
-            ) : (
-              <form onSubmit={confirmCode} className="space-y-3">
-                <div className="rounded-2xl border border-primary/20 bg-primary-soft/40 p-3 text-xs text-foreground/70">
-                  Check your inbox and click the verification link — it returns you here automatically.
-                  Or, if the email shows a code, enter it below.
-                </div>
-                <label className="block">
-                  <span className="block text-xs font-semibold text-foreground/80 mb-1.5 ml-1 uppercase tracking-wide">
-                    6-digit code (optional)
-                  </span>
-                  <input
-                    value={code}
-                    onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    placeholder="123456"
-                    className="w-full bg-secondary/60 border border-border rounded-2xl px-4 py-3 text-center text-lg tracking-[0.5em] font-mono outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                  />
-                </label>
-                <button
-                  disabled={busy || code.trim().length < 6}
-                  type="submit"
-                  className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 transition shadow-sm"
-                >
-                  {busy ? "Verifying…" : "Confirm code"}
-                </button>
-                <button
-                  type="button"
-                  onClick={sendCode}
-                  disabled={busy || countdown > 0}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-border bg-secondary/60 text-foreground/80 hover:bg-secondary hover:text-foreground disabled:opacity-40 transition"
-                >
-                  <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} />
-                  {countdown > 0 ? `Resend email in ${countdown}s` : (busy ? "Sending…" : "Resend email")}
-                </button>
-              </form>
-            )}
+            <button
+              onClick={sendLink}
+              disabled={busy || countdown > 0}
+              type="button"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 transition shadow-sm"
+            >
+              <Mail className="w-4 h-4" />
+              {busy
+                ? "Sending…"
+                : countdown > 0
+                ? `Resend link in ${countdown}s`
+                : "Send sign-in link"}
+            </button>
           </>
         )}
       </div>
+
+      {showSentDialog && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowSentDialog(false)}
+        >
+          <div
+            className="relative bg-card rounded-3xl border border-border shadow-xl max-w-md w-full p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSentDialog(false)}
+              className="absolute top-3 right-3 w-8 h-8 grid place-items-center rounded-full hover:bg-secondary transition"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex flex-col items-center text-center">
+              <span className="w-14 h-14 rounded-2xl bg-primary-soft text-primary grid place-items-center mb-4">
+                <Mail className="w-6 h-6" />
+              </span>
+              <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Fraunces, serif" }}>
+                Check your email
+              </h3>
+              <p className="text-sm text-foreground/75 leading-relaxed mb-5">
+                We just sent a sign-in link to <strong>{user?.email}</strong>.
+                Open the email, click the link, and log in with your correct
+                credentials — it'll take you straight to your account where you
+                can submit reviews.
+              </p>
+              <button
+                onClick={() => setShowSentDialog(false)}
+                className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
