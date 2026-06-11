@@ -1,17 +1,18 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { GraduationCap, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
 const links = [
-  { to: "/#teachers", id: "teachers", label: "Browse Teachers", icon: Users },
-  { to: "/#schools", id: "schools", label: "School Rankings", icon: Building2 },
-  { to: "/#submit", id: "submit", label: "Submit Feedback", icon: MessageSquarePlus },
-  { to: "/#add-teacher", id: "add-teacher", label: "Add Teacher", icon: UserPlus },
-  { to: "/#guidelines", id: "guidelines", label: "Community Guidelines", icon: BookOpen },
-  { to: "/#admin", id: "admin", label: "Admin", icon: ShieldCheck },
+  { to: "/teachers", label: "Browse Teachers", icon: Users },
+  { to: "/schools", label: "School Rankings", icon: Building2 },
+  { to: "/submit", label: "Submit Feedback", icon: MessageSquarePlus },
+  { to: "/add-teacher", label: "Add Teacher", icon: UserPlus },
+  { to: "/guidelines", label: "Community Guidelines", icon: BookOpen },
+  { to: "/admin", label: "Admin", icon: ShieldCheck },
 ];
+
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
