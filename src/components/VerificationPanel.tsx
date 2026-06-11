@@ -27,33 +27,47 @@ export default function VerificationPanel() {
     return () => clearInterval(id);
   }, [countdown]);
 
+  // Record the verify intent IMMEDIATELY on landing (even when logged out) so it
+  // survives the login step. Corporate email scanners often consume the link's
+  // one-time token before the user clicks, so we can't rely on the link session.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verify") === "1") {
+      localStorage.setItem("tr_pending_verify", "1");
+      vlog("verify=1 detected on landing — intent saved, waiting for login");
+    }
+  }, []);
+
   // Surface auth errors that Supabase appends to the redirect URL (e.g. expired link)
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.includes("error")) {
       const params = new URLSearchParams(hash.replace(/^#/, ""));
       const desc = params.get("error_description") || params.get("error");
-      vlog("redirect returned an auth error", { hash, desc });
-      if (desc) toast.error(`Login link problem: ${desc.replace(/\+/g, " ")}`);
-      window.history.replaceState({}, "", window.location.pathname);
+      vlog("redirect returned an auth error (link token likely pre-consumed by email scanner)", { hash, desc });
+      // Keep the search params (?verify=1) — only strip the error hash.
+      window.history.replaceState({}, "", window.location.pathname + window.location.search);
     }
   }, []);
 
-  // After clicking the email link the user lands on /account?verify=1 — auto-link the session.
+  // Once the user is logged in and a verify intent is pending, activate the account.
   useEffect(() => {
     if (!user || isVerified || handledRedirect.current) return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("verify") !== "1") return;
+    const pending = params.get("verify") === "1" || localStorage.getItem("tr_pending_verify") === "1";
+    if (!pending) return;
     handledRedirect.current = true;
-    vlog("returned from email link with verify=1, marking account active", { userId: user.id, email: user.email });
+    vlog("user logged in with verify intent pending — activating account", { userId: user.id, email: user.email });
     (async () => {
       const { error } = await supabase.rpc("mark_self_verified" as any);
       if (error) {
         vlog("mark_self_verified FAILED", error);
+        handledRedirect.current = false;
         toast.error(`Could not finish sign-in: ${error.message}`);
         return;
       }
       vlog("mark_self_verified OK");
+      localStorage.removeItem("tr_pending_verify");
       window.history.replaceState({}, "", window.location.pathname);
       toast.success("You're signed in — welcome to your account!");
       await refreshVerification();
