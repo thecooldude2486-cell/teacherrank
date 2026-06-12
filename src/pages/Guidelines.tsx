@@ -1,4 +1,5 @@
-import { ShieldCheck, BookOpen, Heart, AlertTriangle, Info } from "lucide-react";
+import { ShieldCheck, BookOpen, Heart, AlertTriangle, Info, MessageSquareHeart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Guidelines() {
   return (
