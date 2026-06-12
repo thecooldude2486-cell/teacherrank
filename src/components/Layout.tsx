@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import { GraduationCap, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
+import { GraduationCap, Home, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
