@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 const links = [
+  { to: "/", label: "Home", icon: Home },
   { to: "/teachers", label: "Browse Teachers", icon: Users },
   { to: "/schools", label: "School Rankings", icon: Building2 },
   { to: "/submit", label: "Submit Feedback", icon: MessageSquarePlus },
