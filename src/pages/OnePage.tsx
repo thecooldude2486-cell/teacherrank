@@ -97,33 +97,42 @@ export default function OnePage() {
     else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Render only the section that matches the current route (one page per URL).
+  if (teacherMatch) {
+    return (
+      <section id="teacher-profile" aria-label="Teacher profile" className="scroll-mt-20">
+        <TeacherProfile />
+      </section>
+    );
+  }
+  if (schoolMatch) {
+    return (
+      <section id="school-profile" aria-label="School profile" className="scroll-mt-20">
+        <SchoolProfile />
+      </section>
+    );
+  }
+
+  const activeId = sections.find(s => s.path === pathname)?.id ?? "home";
+  const active = visibleSections.find(s => s.id === activeId) ?? visibleSections[0];
+  const ActiveComponent = active.Component;
+
   return (
-    <div>
-      {visibleSections.map(({ id, label, Component }, idx) => (
-        <section
-          key={id}
-          id={id}
-          aria-label={label}
-          className="scroll-mt-20 relative"
-        >
-          <Component />
-          {idx > 0 && (
-            <div className="container flex justify-center pb-12">
-              <button
-                type="button"
-                onClick={() => scrollToSectionTop(id)}
-                aria-label={`Back to top of ${label}`}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all text-sm font-medium"
-              >
-                <ArrowUp className="w-4 h-4" />
-                Back to top of {label}
-              </button>
-            </div>
-          )}
-        </section>
-      ))}
-      <TeacherProfileSlot />
-      <SchoolProfileSlot />
-    </div>
+    <section id={active.id} aria-label={active.label} className="scroll-mt-20 relative">
+      <ActiveComponent />
+      {active.id !== "home" && (
+        <div className="container flex justify-center pb-12">
+          <button
+            type="button"
+            onClick={() => scrollToSectionTop(active.id)}
+            aria-label={`Back to top of ${active.label}`}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all text-sm font-medium"
+          >
+            <ArrowUp className="w-4 h-4" />
+            Back to top of {active.label}
+          </button>
+        </div>
+      )}
+    </section>
   );
 }
