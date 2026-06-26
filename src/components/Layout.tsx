@@ -40,8 +40,6 @@ export default function Layout() {
     }
   };
 
-
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
