@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { GraduationCap, Home, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,9 +13,32 @@ const links = [
   { to: "/admin", label: "Admin", icon: ShieldCheck },
 ];
 
+function pathToSectionId(path: string) {
+  if (path.startsWith("/teachers/")) return "teacher-profile";
+  if (path.startsWith("/schools/")) return "school-profile";
+  return path === "/" ? "home" : path.slice(1).replace(/\//g, "-");
+}
+
+function scrollToSectionSmooth(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const location = useLocation();
+
+  const handleMenuClick = (to: string) => (e: React.MouseEvent) => {
+    setOpen(false);
+    if (to === location.pathname) {
+      e.preventDefault();
+      const id = pathToSectionId(to);
+      setTimeout(() => scrollToSectionSmooth(id), 80);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -65,7 +88,7 @@ export default function Layout() {
                 const Icon = l.icon;
                 return (
                   <Link key={l.to} to={l.to}
-                    onClick={() => setOpen(false)}
+                    onClick={handleMenuClick(l.to)}
                     className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary transition-colors">
                     <span className="w-8 h-8 rounded-xl bg-secondary grid place-items-center">
                       <Icon className="w-4 h-4" />
@@ -76,7 +99,7 @@ export default function Layout() {
               })}
               {user ? (
                 <>
-                  <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary">
+                  <Link to="/account" onClick={handleMenuClick("/account")} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary">
                     <span className="w-8 h-8 rounded-xl bg-primary text-primary-foreground grid place-items-center text-xs font-bold">
                       {(user.email ?? "?").charAt(0).toUpperCase()}
                     </span>
@@ -95,7 +118,7 @@ export default function Layout() {
                     </span>
                     You don't have an account
                   </div>
-                  <Link to="/auth" onClick={() => setOpen(false)} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
+                  <Link to="/auth" onClick={handleMenuClick("/auth")} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
                     <span className="inline-flex items-center gap-3"><LogIn className="w-4 h-4" /> Log in / Sign up</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
