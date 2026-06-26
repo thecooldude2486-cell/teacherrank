@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { GraduationCap, Home, Menu, X, Undo2, Redo2, LogIn, UserCircle2, Users, Building2, MessageSquarePlus, UserPlus, ShieldCheck, ArrowRight, LogOut, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,19 @@ const links = [
   { to: "/guidelines", label: "Community Guidelines", icon: BookOpen },
   { to: "/admin", label: "Admin", icon: ShieldCheck },
 ];
+
+function pathToSectionId(path: string) {
+  if (path.startsWith("/teachers/")) return "teacher-profile";
+  if (path.startsWith("/schools/")) return "school-profile";
+  return path === "/" ? "home" : path.slice(1).replace(/\//g, "-");
+}
+
+function scrollToSectionSmooth(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
