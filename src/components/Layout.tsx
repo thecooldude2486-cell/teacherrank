@@ -100,7 +100,7 @@ export default function Layout() {
               })}
               {user ? (
                 <>
-                  <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary">
+                  <Link to="/account" onClick={handleMenuClick("/account")} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary">
                     <span className="w-8 h-8 rounded-xl bg-primary text-primary-foreground grid place-items-center text-xs font-bold">
                       {(user.email ?? "?").charAt(0).toUpperCase()}
                     </span>
