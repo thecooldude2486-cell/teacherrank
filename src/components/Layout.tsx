@@ -40,16 +40,6 @@ export default function Layout() {
     }
   };
 
-  const location = useLocation();
-
-  const handleMenuClick = (to: string) => (e: React.MouseEvent) => {
-    setOpen(false);
-    if (to === location.pathname) {
-      e.preventDefault();
-      const id = pathToSectionId(to);
-      setTimeout(() => scrollToSectionSmooth(id), 80);
-    }
-  };
 
 
   return (
