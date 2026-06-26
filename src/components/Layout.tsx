@@ -89,7 +89,7 @@ export default function Layout() {
                 const Icon = l.icon;
                 return (
                   <Link key={l.to} to={l.to}
-                    onClick={() => setOpen(false)}
+                    onClick={handleMenuClick(l.to)}
                     className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-secondary transition-colors">
                     <span className="w-8 h-8 rounded-xl bg-secondary grid place-items-center">
                       <Icon className="w-4 h-4" />
