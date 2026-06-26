@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useMatch } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import Home from "./Home";
 import Teachers from "./Teachers";
 import Schools from "./Schools";
@@ -53,14 +52,6 @@ const sections: Section[] = [
 
 export default function OnePage() {
   const { hash, pathname } = useLocation();
-  const { user } = useAuth();
-  const gatedIds = new Set(["submit", "submit-school", "add-teacher", "admin"]);
-  const visibleSections = sections.filter(s => {
-    if (s.id === "auth") return !user;
-    if (s.id === "account") return !!user;
-    if (gatedIds.has(s.id)) return !!user;
-    return true;
-  });
   const teacherMatch = useMatch("/teachers/:id");
   const schoolMatch = useMatch("/schools/:id");
 
@@ -114,7 +105,7 @@ export default function OnePage() {
   }
 
   const activeId = sections.find(s => s.path === pathname)?.id ?? "home";
-  const active = visibleSections.find(s => s.id === activeId) ?? visibleSections[0];
+  const active = sections.find(s => s.id === activeId) ?? sections[0];
   const ActiveComponent = active.Component;
 
   return (
