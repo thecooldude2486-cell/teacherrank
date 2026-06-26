@@ -119,7 +119,7 @@ export default function Layout() {
                     </span>
                     You don't have an account
                   </div>
-                  <Link to="/auth" onClick={() => setOpen(false)} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
+                  <Link to="/auth" onClick={handleMenuClick("/auth")} className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground">
                     <span className="inline-flex items-center gap-3"><LogIn className="w-4 h-4" /> Log in / Sign up</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
