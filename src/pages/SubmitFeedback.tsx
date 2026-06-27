@@ -318,7 +318,7 @@ function SubmitFeedbackForm() {
         </button>
       </form>
 
-      <div className="flex justify-center pb-2">
+      <div className="flex justify-center mt-6 pb-2">
         <button
           type="submit"
           form="rank-teacher-form"
