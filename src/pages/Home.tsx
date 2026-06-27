@@ -44,14 +44,6 @@ export default function Home() {
       .map(t => ({ id: t.id, label: t.name, sub: `${t.year_level} · ${schoolName(t.school_id)}`, href: `/teachers/${t.id}` }));
   }, [q, scope]);
 
-  const topRated = useMemo(() => {
-    return [...teachers]
-      .filter(t => t.status === "approved")
-      .map(t => ({ t, s: teacherStats(t.id) }))
-      .sort((a, b) => rankingScore(b.s.overall, b.s.count) - rankingScore(a.s.overall, a.s.count))
-      .slice(0, 3)
-      .map(({ t }) => t);
-  }, []);
 
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,19 +141,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Highly rated */}
-      <section className="container py-20">
-        <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
-          <div>
-            <h2 className="text-3xl md:text-4xl mb-2">Highly rated teachers</h2>
-            <p className="text-muted-foreground">Recognised by their parent community for care, clarity, and consistency.</p>
-          </div>
-          <Link to="/teachers" className="text-sm font-semibold text-primary hover:underline">View all →</Link>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {topRated.map(t => <TeacherCard key={t.id} teacher={t} />)}
-        </div>
-      </section>
 
     </>
   );
