@@ -44,7 +44,6 @@ export default function Home() {
       .map(t => ({ id: t.id, label: t.name, sub: `${t.year_level} · ${schoolName(t.school_id)}`, href: `/teachers/${t.id}` }));
   }, [q, scope]);
 
-
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
     nav(`/${scope}${q ? `?q=${encodeURIComponent(q)}` : ""}`);
