@@ -184,7 +184,7 @@ export default function SchoolProfile() {
             <h2 className="text-2xl">Rating breakdown</h2>
             <Link to={`/submit-school?school=${school.id}`}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-              <MessageSquareHeart className="w-4 h-4" /> Submit Feedback
+              <MessageSquareHeart className="w-4 h-4" /> Rank School
             </Link>
           </div>
 

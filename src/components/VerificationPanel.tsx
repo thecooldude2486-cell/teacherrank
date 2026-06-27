@@ -118,7 +118,7 @@ export default function VerificationPanel() {
       <div className="p-6 space-y-5">
         {isVerified ? (
           <div className="rounded-2xl border border-primary/30 bg-primary-soft/60 p-4 text-sm text-foreground/80">
-            You're signed in and ready to submit teacher and school reviews.
+            You're signed in and ready to rank teachers and schools.
           </div>
         ) : (
           <>
