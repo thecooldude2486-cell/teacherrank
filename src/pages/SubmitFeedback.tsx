@@ -8,7 +8,7 @@ import {
 import { shouldFlagReview } from "@/lib/moderation";
 import { StarInput } from "@/components/StarRating";
 import { toast } from "sonner";
-import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { ShieldCheck, AlertTriangle, MessageSquareHeart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
