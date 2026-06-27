@@ -7,7 +7,7 @@ const links = [
   { to: "/", label: "Home", icon: Home },
   { to: "/teachers", label: "Browse Teachers", icon: Users },
   { to: "/schools", label: "School Rankings", icon: Building2 },
-  { to: "/submit", label: "Submit Feedback", icon: MessageSquarePlus },
+  { to: "/submit", label: "Rank Teacher", icon: MessageSquarePlus },
   { to: "/add-teacher", label: "Add Teacher", icon: UserPlus },
   { to: "/guidelines", label: "Community Guidelines", icon: BookOpen },
   { to: "/admin", label: "Admin", icon: ShieldCheck },

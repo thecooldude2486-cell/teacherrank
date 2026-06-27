@@ -176,7 +176,7 @@ function SubmitFeedbackForm() {
 
   return (
     <div className="container max-w-3xl py-12">
-      <h1 className="text-3xl md:text-4xl mb-2">Submit teacher review</h1>
+      <h1 className="text-3xl md:text-4xl mb-2">Rank Teacher</h1>
       <p className="text-muted-foreground mb-8">Share constructive, fair feedback about your child's classroom learning experience. All feedback is moderated before publishing.</p>
 
       <div className="bg-accent-soft border border-accent/30 rounded-2xl p-4 mb-4 flex gap-3">
@@ -314,7 +314,7 @@ function SubmitFeedbackForm() {
         </div>
 
         <button type="submit" className="w-full py-4 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">
-          Submit feedback for review
+          Rank Teacher
         </button>
       </form>
     </div>

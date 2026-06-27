@@ -128,7 +128,7 @@ export default function TeacherProfile() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h2 className="text-2xl">Rating breakdown</h2>
             <Link to={`/submit?teacher=${teacher.id}`} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-              <MessageSquareHeart className="w-4 h-4" /> Submit Feedback
+              <MessageSquareHeart className="w-4 h-4" /> Rank Teacher
             </Link>
           </div>
 

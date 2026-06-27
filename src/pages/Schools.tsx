@@ -45,7 +45,7 @@ export default function Schools() {
             else navigate("/submit-school");
           }}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition-opacity self-start">
-          <MessageSquareHeart className="w-4 h-4" /> Submit School Feedback
+          <MessageSquareHeart className="w-4 h-4" /> Rank School
         </Link>
       </header>
 

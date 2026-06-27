@@ -143,7 +143,7 @@ function SubmitSchoolFeedbackForm() {
 
   return (
     <div className="container py-10 max-w-3xl">
-      <h1 className="text-3xl md:text-4xl mb-2">Submit school feedback</h1>
+      <h1 className="text-3xl md:text-4xl mb-2">Rank School</h1>
       <p className="text-muted-foreground mb-4">
         Share constructive, respectful feedback about your child's primary school. All reviews are moderated before publishing.
       </p>
