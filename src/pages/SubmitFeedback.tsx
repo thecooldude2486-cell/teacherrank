@@ -8,7 +8,7 @@ import {
 import { shouldFlagReview } from "@/lib/moderation";
 import { StarInput } from "@/components/StarRating";
 import { toast } from "sonner";
-import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { ShieldCheck, AlertTriangle, MessageSquareHeart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthGate from "@/components/AuthGate";
@@ -189,7 +189,7 @@ function SubmitFeedbackForm() {
         Your review will be saved as pending and reviewed by a moderator before it appears publicly or affects rankings.
       </div>
 
-      <form onSubmit={submit} className="bg-card rounded-3xl border border-border/60 shadow-card p-6 md:p-8 space-y-6">
+      <form id="rank-teacher-form" onSubmit={submit} className="bg-card rounded-3xl border border-border/60 shadow-card p-6 md:p-8 space-y-6">
         <div className="grid md:grid-cols-3 gap-4">
           <Field label="Teacher">
             <select value={teacherId} onChange={e => setTeacherId(e.target.value)} className={inputCls}>
@@ -317,6 +317,17 @@ function SubmitFeedbackForm() {
           Rank Teacher
         </button>
       </form>
+
+      <div className="flex justify-center pb-2">
+        <button
+          type="submit"
+          form="rank-teacher-form"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+        >
+          <MessageSquareHeart className="w-4 h-4" />
+          Rank Teacher
+        </button>
+      </div>
     </div>
   );
 }
