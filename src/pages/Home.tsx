@@ -11,6 +11,7 @@ export default function Home() {
   const [openSuggest, setOpenSuggest] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const nav = useNavigate();
+  const { isVerified, loading } = useAuth();
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
