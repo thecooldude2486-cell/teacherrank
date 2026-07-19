@@ -74,12 +74,49 @@ export default function Auth() {
 
   const go = (dir: number) => setSlide(s => (s + dir + slides.length) % slides.length);
 
+  // iPhone-style progressive lockout on invalid password attempts (per email, client-side)
+  const LOCK_KEY = (em: string) => `tr_login_lock_${em.trim().toLowerCase()}`;
+  type LockState = { attempts: number; lockedUntil: number | null; permanent?: boolean };
+  const readLock = (em: string): LockState => {
+    try { return JSON.parse(localStorage.getItem(LOCK_KEY(em)) || "") as LockState; }
+    catch { return { attempts: 0, lockedUntil: null }; }
+  };
+  const writeLock = (em: string, s: LockState) => localStorage.setItem(LOCK_KEY(em), JSON.stringify(s));
+  const clearLock = (em: string) => localStorage.removeItem(LOCK_KEY(em));
+  // attempts counted BEFORE increment: 5→1min, 6→5min, 7→15min, 8→60min, 9→permanent
+  const lockoutForAttempt = (n: number): { ms: number; permanent: boolean; label: string } => {
+    if (n >= 9) return { ms: 0, permanent: true, label: "permanent" };
+    if (n === 8) return { ms: 60 * 60_000, permanent: false, label: "60 minutes" };
+    if (n === 7) return { ms: 15 * 60_000, permanent: false, label: "15 minutes" };
+    if (n === 6) return { ms: 5 * 60_000, permanent: false, label: "5 minutes" };
+    if (n === 5) return { ms: 60_000, permanent: false, label: "1 minute" };
+    return { ms: 0, permanent: false, label: "" };
+  };
+  const formatRemaining = (ms: number) => {
+    const s = Math.ceil(ms / 1000);
+    if (s >= 60) { const m = Math.ceil(s / 60); return `${m} minute${m === 1 ? "" : "s"}`; }
+    return `${s} second${s === 1 ? "" : "s"}`;
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Only enforce the education email check on signup. Existing accounts can log in directly.
     if (mode === "signup" && !isAllowedEduEmail(email)) {
       toast.error("Use your name.surname@education.nsw.gov.au address to continue.");
       return;
+    }
+
+    // Pre-check lockout state (login only)
+    if (mode === "login") {
+      const st = readLock(email);
+      if (st.permanent) {
+        toast.error("This account has been permanently locked due to the amount of times you have entered your password incorrectly.");
+        return;
+      }
+      if (st.lockedUntil && st.lockedUntil > Date.now()) {
+        toast.error(`Too many failed attempts. Try again in ${formatRemaining(st.lockedUntil - Date.now())}.`);
+        return;
+      }
     }
 
     setBusy(true);
@@ -96,7 +133,32 @@ export default function Auth() {
         toast.success("Account created. You're signed in.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          // Only count invalid credentials toward the lockout counter
+          const isBadCreds = /invalid login credentials|invalid_credentials/i.test(error.message);
+          if (isBadCreds) {
+            const st = readLock(email);
+            const nextAttempts = st.attempts + 1;
+            const lo = lockoutForAttempt(nextAttempts);
+            if (lo.permanent) {
+              writeLock(email, { attempts: nextAttempts, lockedUntil: null, permanent: true });
+              toast.error("This account has been permanently locked due to the amount of times you have entered your password incorrectly.");
+              return;
+            }
+            if (lo.ms > 0) {
+              const until = Date.now() + lo.ms;
+              writeLock(email, { attempts: nextAttempts, lockedUntil: until });
+              toast.error(`Incorrect password. Account locked for ${lo.label}.`);
+              return;
+            }
+            writeLock(email, { attempts: nextAttempts, lockedUntil: null });
+            const remaining = 5 - nextAttempts;
+            toast.error(`Incorrect password.${remaining > 0 ? ` ${remaining} attempt${remaining === 1 ? "" : "s"} left before lockout.` : ""}`);
+            return;
+          }
+          throw error;
+        }
+        clearLock(email);
         toast.success("Welcome back!");
       }
       nav("/account");
@@ -104,6 +166,7 @@ export default function Auth() {
       toast.error(err.message || "Authentication failed");
     } finally { setBusy(false); }
   };
+
 
 
 
