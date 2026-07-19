@@ -15,11 +15,12 @@ export default function VerificationGate({ children }: { children: React.ReactNo
         </span>
         <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "Fraunces, serif" }}>Verification required</h2>
         <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
-          Only verified accounts can submit reviews. Please submit your verification details on your account page — an admin will review them.
+          You need to verify your email before you can view rankings, submit rankings, or suggest teachers. Head to your account page to send yourself a verification email and click the link inside.
         </p>
         <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-          TeacherRank is not affiliated with NSW Department of Education. Opening the NSW portal does not verify your account.
+          This applies to every account, including admins.
         </p>
+
         <Link
           to="/account"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all"
