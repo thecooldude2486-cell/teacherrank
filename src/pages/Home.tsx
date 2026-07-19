@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Users, MessageSquareHeart, PlusCircle, Sparkles, GraduationCap, School as SchoolIcon } from "lucide-react";
+import { Search, Users, MessageSquareHeart, PlusCircle, Sparkles, GraduationCap, School as SchoolIcon, Lock, ArrowRight } from "lucide-react";
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { teachers, schoolName } from "@/lib/mockData";
 import { primarySchools } from "@/lib/schoolsData";
 
@@ -10,6 +11,7 @@ export default function Home() {
   const [openSuggest, setOpenSuggest] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const nav = useNavigate();
+  const { isVerified, loading } = useAuth();
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -67,63 +69,88 @@ export default function Home() {
               Share fair, constructive feedback about classroom learning experiences — and help your school community grow together.
             </p>
 
-            <div className="max-w-2xl mx-auto mb-6" ref={wrapRef}>
-              <div className="inline-flex p-1 bg-card/80 backdrop-blur border border-border/60 rounded-full mb-3 shadow-card">
-                {(["schools", "teachers"] as const).map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => { setScope(s); setOpenSuggest(true); }}
-                    className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize transition-colors ${scope === s ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:text-foreground"}`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-              <div className="relative">
-                <form onSubmit={onSearch} className="bg-card rounded-full shadow-soft border border-border/60 flex items-center p-2">
-                  <Search className="w-5 h-5 text-muted-foreground ml-4 mr-2 shrink-0" />
-                  <input
-                    value={q}
-                    onChange={e => { setQ(e.target.value); setOpenSuggest(true); }}
-                    onFocus={() => setOpenSuggest(true)}
-                    placeholder={scope === "schools" ? "Search a school by name, suburb, or state" : "Search a teacher by name, year level, or school"}
-                    className="flex-1 bg-transparent outline-none py-3 text-sm placeholder:text-muted-foreground"
-                  />
-                  <button className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors">Search</button>
-                </form>
+            {loading ? (
+              <div className="max-w-2xl mx-auto mb-6 py-8 text-center text-sm text-muted-foreground">Loading…</div>
+            ) : isVerified ? (
+              <div className="max-w-2xl mx-auto mb-6" ref={wrapRef}>
+                <div className="inline-flex p-1 bg-card/80 backdrop-blur border border-border/60 rounded-full mb-3 shadow-card">
+                  {(["schools", "teachers"] as const).map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setScope(s); setOpenSuggest(true); }}
+                      className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize transition-colors ${scope === s ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+                <div className="relative">
+                  <form onSubmit={onSearch} className="bg-card rounded-full shadow-soft border border-border/60 flex items-center p-2">
+                    <Search className="w-5 h-5 text-muted-foreground ml-4 mr-2 shrink-0" />
+                    <input
+                      value={q}
+                      onChange={e => { setQ(e.target.value); setOpenSuggest(true); }}
+                      onFocus={() => setOpenSuggest(true)}
+                      placeholder={scope === "schools" ? "Search a school by name, suburb, or state" : "Search a teacher by name, year level, or school"}
+                      className="flex-1 bg-transparent outline-none py-3 text-sm placeholder:text-muted-foreground"
+                    />
+                    <button className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors">Search</button>
+                  </form>
 
-                {openSuggest && q.trim() && (
-                  <div className="absolute left-0 right-0 mt-2 bg-card rounded-3xl border border-border/60 shadow-soft overflow-hidden z-50 text-left animate-fade-in max-h-[min(70vh,420px)] flex flex-col">
-                    {suggestions.length === 0 ? (
-                      <div className="px-5 py-4 text-sm text-muted-foreground">
-                        No matching {scope} — press Search to see the full list.
-                      </div>
-                    ) : (
-                      <ul className="max-h-80 overflow-auto">
-                        {suggestions.map(item => (
-                          <li key={item.id}>
-                            <button
-                              type="button"
-                              onClick={() => { setOpenSuggest(false); nav(item.href); }}
-                              className="w-full flex items-center gap-3 px-5 py-3 hover:bg-secondary/60 transition-colors"
-                            >
-                              <span className="w-9 h-9 rounded-2xl grid place-items-center bg-primary-soft text-[hsl(var(--heading))] shrink-0">
-                                {scope === "schools" ? <SchoolIcon className="w-4 h-4" /> : <GraduationCap className="w-4 h-4" />}
-                              </span>
-                              <span className="min-w-0 flex-1">
-                                <span className="block text-sm font-semibold truncate">{item.label}</span>
-                                <span className="block text-xs text-muted-foreground truncate">{item.sub}</span>
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
+                  {openSuggest && q.trim() && (
+                    <div className="absolute left-0 right-0 mt-2 bg-card rounded-3xl border border-border/60 shadow-soft overflow-hidden z-50 text-left animate-fade-in max-h-[min(70vh,420px)] flex flex-col">
+                      {suggestions.length === 0 ? (
+                        <div className="px-5 py-4 text-sm text-muted-foreground">
+                          No matching {scope} — press Search to see the full list.
+                        </div>
+                      ) : (
+                        <ul className="max-h-80 overflow-auto">
+                          {suggestions.map(item => (
+                            <li key={item.id}>
+                              <button
+                                type="button"
+                                onClick={() => { setOpenSuggest(false); nav(item.href); }}
+                                className="w-full flex items-center gap-3 px-5 py-3 hover:bg-secondary/60 transition-colors"
+                              >
+                                <span className="w-9 h-9 rounded-2xl grid place-items-center bg-primary-soft text-[hsl(var(--heading))] shrink-0">
+                                  {scope === "schools" ? <SchoolIcon className="w-4 h-4" /> : <GraduationCap className="w-4 h-4" />}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block text-sm font-semibold truncate">{item.label}</span>
+                                  <span className="block text-xs text-muted-foreground truncate">{item.sub}</span>
+                                </span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="max-w-2xl mx-auto mb-6">
+                <div className="bg-card rounded-3xl border border-border/60 shadow-card p-8 text-center">
+                  <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-primary-soft text-primary mb-4">
+                    <Lock className="w-5 h-5" />
+                  </span>
+                  <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "Fraunces, serif" }}>Verification required</h2>
+                  <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
+                    You need to verify your email before you can search for teachers or schools. Head to your account page to send yourself a verification email and click the link inside.
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+                    This applies to every account, including admins.
+                  </p>
+                  <Link
+                    to="/account"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all"
+                  >
+                    Go to verification <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link to="/teachers" className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-card hover:bg-primary/90 transition-colors">
