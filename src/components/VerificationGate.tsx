@@ -3,9 +3,10 @@ import { ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function VerificationGate({ children }: { children: React.ReactNode }) {
-  const { isVerified, isAdmin, loading } = useAuth();
+  const { isVerified, loading } = useAuth();
   if (loading) return <div className="container py-16 text-center text-sm text-muted-foreground">Loading…</div>;
-  if (isVerified || isAdmin) return <>{children}</>;
+  if (isVerified) return <>{children}</>;
+
   return (
     <div className="container max-w-2xl py-16">
       <div className="bg-card rounded-3xl border border-border/60 shadow-card p-8 text-center">
