@@ -119,7 +119,7 @@ export default function OnePage() {
       {gated ? <VerificationGate><ActiveComponent /></VerificationGate> : <ActiveComponent />}
 
       {active.id !== "home" && (
-        <div className="container flex justify-center pb-12">
+        <div className="container flex justify-center pt-12 pb-12">
           <button
             type="button"
             onClick={() => scrollToSectionTop(active.id)}
