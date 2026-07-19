@@ -110,7 +110,7 @@ export default function Auth() {
     if (mode === "login") {
       const st = readLock(email);
       if (st.permanent) {
-        toast.error("This account has been permanently locked due to the amount of times you have entered your password incorrectly.");
+        toast.error("This account has been permanently locked due to the number of times you have entered your password incorrectly.");
         return;
       }
       if (st.lockedUntil && st.lockedUntil > Date.now()) {
