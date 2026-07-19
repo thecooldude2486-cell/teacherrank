@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Users, MessageSquareHeart, PlusCircle, Sparkles, GraduationCap, School as SchoolIcon } from "lucide-react";
+import { Search, Users, MessageSquareHeart, PlusCircle, Sparkles, GraduationCap, School as SchoolIcon, Lock, ArrowRight } from "lucide-react";
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { teachers, schoolName } from "@/lib/mockData";
 import { primarySchools } from "@/lib/schoolsData";
 
