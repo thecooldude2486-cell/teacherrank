@@ -116,7 +116,8 @@ export default function OnePage() {
 
   return (
     <section id={active.id} aria-label={active.label} className="scroll-mt-20 relative">
-      <ActiveComponent />
+      {gated ? <VerificationGate><ActiveComponent /></VerificationGate> : <ActiveComponent />}
+
       {active.id !== "home" && (
         <div className="container flex justify-center pb-12">
           <button
