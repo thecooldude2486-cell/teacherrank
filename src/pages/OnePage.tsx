@@ -13,6 +13,10 @@ import Auth from "./Auth";
 import TeacherProfile from "./TeacherProfile";
 import SchoolProfile from "./SchoolProfile";
 import Guidelines from "./Guidelines";
+import VerificationGate from "@/components/VerificationGate";
+
+const GATED_IDS = new Set(["teachers", "schools", "submit", "submit-school", "add-teacher"]);
+
 
 
 type Section = { id: string; path: string; label: string; Component: React.ComponentType; when?: boolean };
@@ -92,14 +96,14 @@ export default function OnePage() {
   if (teacherMatch) {
     return (
       <section id="teacher-profile" aria-label="Teacher profile" className="scroll-mt-20">
-        <TeacherProfile />
+        <VerificationGate><TeacherProfile /></VerificationGate>
       </section>
     );
   }
   if (schoolMatch) {
     return (
       <section id="school-profile" aria-label="School profile" className="scroll-mt-20">
-        <SchoolProfile />
+        <VerificationGate><SchoolProfile /></VerificationGate>
       </section>
     );
   }
@@ -107,10 +111,13 @@ export default function OnePage() {
   const activeId = sections.find(s => s.path === pathname)?.id ?? "home";
   const active = sections.find(s => s.id === activeId) ?? sections[0];
   const ActiveComponent = active.Component;
+  const gated = GATED_IDS.has(active.id);
+
 
   return (
     <section id={active.id} aria-label={active.label} className="scroll-mt-20 relative">
-      <ActiveComponent />
+      {gated ? <VerificationGate><ActiveComponent /></VerificationGate> : <ActiveComponent />}
+
       {active.id !== "home" && (
         <div className="container flex justify-center pb-12">
           <button

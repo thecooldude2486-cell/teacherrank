@@ -3,9 +3,10 @@ import { ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function VerificationGate({ children }: { children: React.ReactNode }) {
-  const { isVerified, isAdmin, loading } = useAuth();
+  const { isVerified, loading } = useAuth();
   if (loading) return <div className="container py-16 text-center text-sm text-muted-foreground">Loading…</div>;
-  if (isVerified || isAdmin) return <>{children}</>;
+  if (isVerified) return <>{children}</>;
+
   return (
     <div className="container max-w-2xl py-16">
       <div className="bg-card rounded-3xl border border-border/60 shadow-card p-8 text-center">
@@ -14,11 +15,12 @@ export default function VerificationGate({ children }: { children: React.ReactNo
         </span>
         <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "Fraunces, serif" }}>Verification required</h2>
         <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
-          Only verified accounts can submit reviews. Please submit your verification details on your account page — an admin will review them.
+          You need to verify your email before you can view rankings, submit rankings, or suggest teachers. Head to your account page to send yourself a verification email and click the link inside.
         </p>
         <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-          TeacherRank is not affiliated with NSW Department of Education. Opening the NSW portal does not verify your account.
+          This applies to every account, including admins.
         </p>
+
         <Link
           to="/account"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all"
