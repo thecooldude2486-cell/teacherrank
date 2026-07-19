@@ -142,7 +142,7 @@ export default function Auth() {
             const lo = lockoutForAttempt(nextAttempts);
             if (lo.permanent) {
               writeLock(email, { attempts: nextAttempts, lockedUntil: null, permanent: true });
-              toast.error("This account has been permanently locked due to the amount of times you have entered your password incorrectly.");
+              toast.error("This account has been permanently locked due to the number of times you have entered your password incorrectly.");
               return;
             }
             if (lo.ms > 0) {
