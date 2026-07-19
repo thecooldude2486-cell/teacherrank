@@ -96,14 +96,14 @@ export default function OnePage() {
   if (teacherMatch) {
     return (
       <section id="teacher-profile" aria-label="Teacher profile" className="scroll-mt-20">
-        <TeacherProfile />
+        <VerificationGate><TeacherProfile /></VerificationGate>
       </section>
     );
   }
   if (schoolMatch) {
     return (
       <section id="school-profile" aria-label="School profile" className="scroll-mt-20">
-        <SchoolProfile />
+        <VerificationGate><SchoolProfile /></VerificationGate>
       </section>
     );
   }
@@ -111,6 +111,8 @@ export default function OnePage() {
   const activeId = sections.find(s => s.path === pathname)?.id ?? "home";
   const active = sections.find(s => s.id === activeId) ?? sections[0];
   const ActiveComponent = active.Component;
+  const gated = GATED_IDS.has(active.id);
+
 
   return (
     <section id={active.id} aria-label={active.label} className="scroll-mt-20 relative">
