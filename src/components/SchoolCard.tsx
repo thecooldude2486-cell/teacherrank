@@ -18,6 +18,30 @@ function MiniStat({ label, value }: { label: string; value: number }) {
 
 export default function SchoolCard({ school }: { school: PrimarySchool }) {
   const stats = schoolStats(school.id);
+  const { user } = useAuth();
+  const [reported, setReported] = useState(false);
+  const [susSent, setSusSent] = useState(false);
+
+  const isUuid = (x: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x);
+
+  const flag = async (kind: "report" | "suspicious") => {
+    if (!user) { toast.error("Please sign in to flag this school."); return; }
+    const prompt = kind === "report"
+      ? `Why are you reporting ${school.name}?`
+      : "Describe the suspicious activity (e.g. fake school, spam):";
+    const reason = window.prompt(prompt);
+    if (!reason || !reason.trim()) return;
+    const review_id = isUuid(school.id) ? school.id : crypto.randomUUID();
+    const { error } = await supabase.from("reports").insert({
+      review_type: "school" as any, review_id,
+      reported_by_user_id: user.id,
+      reason: kind === "suspicious" ? `Suspicious activity: ${reason.trim()}` : reason.trim(),
+      details: `School listing: ${school.name} (${school.suburb}, ${school.state})`,
+    });
+    if (error) { toast.error(error.message); return; }
+    if (kind === "report") setReported(true); else setSusSent(true);
+    toast.success("Thanks — flagged for moderator review.");
+  };
   return (
     <article className="bg-card rounded-3xl border border-border/60 shadow-card overflow-hidden flex flex-col">
       <div className="h-36 relative overflow-hidden" style={{ backgroundColor: school.cover_color }}>
