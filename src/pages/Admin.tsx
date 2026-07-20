@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { addTeacherGrade } from "@/lib/mockData";
 
 
-type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users";
+type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users" | "all-teachers" | "all-schools";
 type UserRow = { id: string; email: string | null; display_name: string | null; is_admin: boolean };
 
 
