@@ -6,7 +6,8 @@ import AuthGate from "@/components/AuthGate";
 import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search, BookOpen, ShieldAlert, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { addTeacherGrade } from "@/lib/mockData";
+import { addTeacherGrade, teachers as mockTeachers, schoolName as mockSchoolName } from "@/lib/mockData";
+import { primarySchools } from "@/lib/schoolsData";
 
 
 type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users" | "all-teachers" | "all-schools";
