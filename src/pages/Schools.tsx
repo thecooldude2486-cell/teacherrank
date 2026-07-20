@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Search, MessageSquareHeart } from "lucide-react";
-import { primarySchools, schoolStats } from "@/lib/schoolsData";
+import { primarySchools, schoolStats, type PrimarySchool, type SchoolType } from "@/lib/schoolsData";
 import { rankingScore } from "@/lib/ranking";
 import SchoolCard from "@/components/SchoolCard";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Schools() {
   const [params] = useSearchParams();
@@ -12,9 +13,32 @@ export default function Schools() {
   const [type, setType] = useState("all");
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [dbSchools, setDbSchools] = useState<PrimarySchool[]>([]);
+
+  useEffect(() => {
+    supabase.from("schools").select("*").eq("status", "approved").then(({ data }) => {
+      if (!data) return;
+      const mapped: PrimarySchool[] = data.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        suburb: (r as any).suburb ?? (r as any).location ?? "",
+        state: (r as any).state ?? "",
+        school_type: ((r as any).school_type as SchoolType) ?? "Public",
+        blurb: (r as any).blurb ?? "",
+        cover_color: (r as any).cover_color ?? "#5ab3a8",
+        cover_image: (r as any).cover_image ?? "",
+      }));
+      setDbSchools(mapped);
+    });
+  }, []);
+
+  const allSchools = useMemo(() => {
+    const ids = new Set(dbSchools.map(s => s.id));
+    return [...dbSchools, ...primarySchools.filter(s => !ids.has(s.id))];
+  }, [dbSchools]);
 
   const ranked = useMemo(() => {
-    return primarySchools
+    return allSchools
       .filter(s => type === "all" || s.school_type === type)
       .filter(s => {
         const t = q.trim().toLowerCase();
@@ -27,7 +51,7 @@ export default function Schools() {
       })
       .map(s => ({ s, stats: schoolStats(s.id) }))
       .sort((a, b) => rankingScore(b.stats.overall, b.stats.count) - rankingScore(a.stats.overall, a.stats.count));
-  }, [q, type]);
+  }, [q, type, allSchools]);
 
   return (
     <div className="container py-10">
