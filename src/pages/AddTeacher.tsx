@@ -89,6 +89,7 @@ function AddTeacherForm() {
 }
 
 const inputCls = "w-full bg-secondary/60 border border-border rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary";
+const selectCls = "w-full bg-secondary/60 border border-border rounded-2xl pl-4 pr-6 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary select-polished";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
