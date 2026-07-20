@@ -66,7 +66,7 @@ export default function SchoolProfile() {
 
     ].filter(Boolean).join("\n");
     const { error } = await supabase.from("reports").insert({
-      review_type: "school" as any,
+      review_type: "school_review" as any,
       review_id,
       reported_by_user_id: user.id,
       reason: reason.trim(),
@@ -85,7 +85,7 @@ export default function SchoolProfile() {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
     const review_id = isUuid ? rid : crypto.randomUUID();
     const { error } = await supabase.from("reports").insert({
-      review_type: "school" as any,
+      review_type: "school_review" as any,
       review_id,
       reported_by_user_id: user.id,
       reason: `Suspicious activity: ${reason.trim()}`,

@@ -33,7 +33,7 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
     if (!reason || !reason.trim()) return;
     const review_id = isUuid(school.id) ? school.id : crypto.randomUUID();
     const { error } = await supabase.from("reports").insert({
-      review_type: "school" as any, review_id,
+      review_type: "school_review" as any, review_id,
       reported_by_user_id: user.id,
       reason: kind === "suspicious" ? `Suspicious activity: ${reason.trim()}` : reason.trim(),
       details: `School listing: ${school.name} (${school.suburb}, ${school.state})`,
