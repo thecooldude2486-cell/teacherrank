@@ -74,7 +74,7 @@ export default function SchoolProfile() {
     });
     if (error) { toast.error(error.message); return; }
     setReported(p => ({ ...p, [rid]: true }));
-    toast.success("Thanks — this review has been flagged for moderator review.");
+    toast.success("You have successfully reported this review.");
   };
 
   const reportSuspicious = async (rid: string) => {
@@ -93,7 +93,7 @@ export default function SchoolProfile() {
     });
     if (error) { toast.error(error.message); return; }
     setSusSent(p => ({ ...p, [rid]: true }));
-    toast.success("Thanks — flagged for moderator review.");
+    toast.success("You have successfully flagged suspicious activity.");
   };
 
 
