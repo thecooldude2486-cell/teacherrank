@@ -68,6 +68,39 @@ export default function TeacherProfile() {
     toast.success("Thanks — this review has been flagged for moderator review.");
   };
 
+  const requestGradeCorrection = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to request a grade correction."); return; }
+    const requested_grade = window.prompt(`Suggest the correct grade for ${teacher.name} (e.g. "Year 3"):`, "");
+    if (!requested_grade || !requested_grade.trim()) return;
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id: teacher.id, teacher_name: teacher.name,
+      requested_grade: requested_grade.trim(),
+      submitted_by_user_id: user.id, status: "pending",
+    });
+    if (error) { toast.error(error.message); return; }
+    setGcSent(p => ({ ...p, [rid]: true }));
+    toast.success("Grade correction request submitted for review.");
+  };
+
+  const reportSuspicious = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to flag suspicious activity."); return; }
+    const reason = window.prompt("Describe the suspicious activity (e.g. fake review, spam, bot):");
+    if (!reason || !reason.trim()) return;
+    const rev = teacherReviews.find(r => r.id === rid);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
+    const review_id = isUuid ? rid : crypto.randomUUID();
+    const { error } = await supabase.from("reports").insert({
+      review_type: "teacher" as any,
+      review_id,
+      reported_by_user_id: user.id,
+      reason: `Suspicious activity: ${reason.trim()}`,
+      details: [`Teacher: ${teacher.name}`, rev?.written_feedback ? `Excerpt: ${rev.written_feedback.slice(0,200)}` : null].filter(Boolean).join("\n"),
+    });
+    if (error) { toast.error(error.message); return; }
+    setSusSent(p => ({ ...p, [rid]: true }));
+    toast.success("Thanks — flagged for moderator review.");
+  };
+
 
 
   return (
