@@ -39,6 +39,10 @@ function AdminInner() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
   const [verifications, setVerifications] = useState<any[]>([]);
+  const [allTeachers, setAllTeachers] = useState<any[]>([]);
+  const [allSchools, setAllSchools] = useState<any[]>([]);
+  const [teacherQuery, setTeacherQuery] = useState("");
+  const [schoolQuery, setSchoolQuery] = useState("");
 
   const reload = async () => {
     const [t, s, tr, sr, r, gc, lo, profs, roles, vr] = await Promise.all([
