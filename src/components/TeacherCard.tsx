@@ -26,7 +26,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
     if (!reason || !reason.trim()) return;
     const review_id = isUuid(teacher.id) ? teacher.id : crypto.randomUUID();
     const { error } = await supabase.from("reports").insert({
-      review_type: "teacher" as any, review_id,
+      review_type: "teacher_review" as any, review_id,
       reported_by_user_id: user.id, reason: reason.trim(),
       details: `Teacher listing: ${teacher.name} (${schoolName(teacher.school_id)})`,
     });
@@ -57,7 +57,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
     if (!reason || !reason.trim()) return;
     const review_id = isUuid(teacher.id) ? teacher.id : crypto.randomUUID();
     const { error } = await supabase.from("reports").insert({
-      review_type: "teacher" as any, review_id,
+      review_type: "teacher_review" as any, review_id,
       reported_by_user_id: user.id,
       reason: `Suspicious activity: ${reason.trim()}`,
       details: `Teacher listing: ${teacher.name} (${schoolName(teacher.school_id)})`,
