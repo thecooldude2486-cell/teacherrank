@@ -263,10 +263,16 @@ export default function SchoolProfile() {
                 </div>
                 <div className="text-xs text-muted-foreground mb-3">{r.created_at}</div>
                 <p className="text-sm leading-relaxed text-foreground/90 mb-3">{r.written_feedback}</p>
-                <button onClick={() => report(r.id)} disabled={reported[r.id]}
-                  className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
-                  <Flag className="w-3.5 h-3.5" /> {reported[r.id] ? "Reported" : "Report Review"}
-                </button>
+                <div className="flex items-center gap-4 pt-1 border-t border-border/40 mt-2">
+                  <button onClick={() => report(r.id)} disabled={reported[r.id]} title="Report this review"
+                    className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Flag className="w-3.5 h-3.5" /> {reported[r.id] ? "Reported" : "Report"}
+                  </button>
+                  <button onClick={() => reportSuspicious(r.id)} disabled={susSent[r.id]} title="Flag suspicious activity"
+                    className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
+                    <ShieldAlert className="w-3.5 h-3.5" /> {susSent[r.id] ? "Flagged" : "Suspicious"}
+                  </button>
+                </div>
               </article>
             ))}
           </div>
