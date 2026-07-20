@@ -243,6 +243,8 @@ function AdminInner() {
                 onApprove={() => setStatus("teachers", t.id, "approved")}
                 onReject={() => setStatus("teachers", t.id, "rejected")}
                 onDelete={() => del("teachers", t.id)}
+                onGradeCorrection={() => quickGradeCorrection(t.id, t.name)}
+                onSuspicious={() => quickSuspicious(t.submitted_by_user_id)}
               />
             ))
           )}
@@ -259,6 +261,7 @@ function AdminInner() {
                 onApprove={() => setStatus("schools", s.id, "approved")}
                 onReject={() => setStatus("schools", s.id, "rejected")}
                 onDelete={() => del("schools", s.id)}
+                onSuspicious={() => quickSuspicious(s.submitted_by_user_id)}
               />
             ))
           )}
@@ -278,6 +281,9 @@ function AdminInner() {
                 onApprove={() => setStatus("teacher_reviews", r.id, "approved")}
                 onReject={() => setStatus("teacher_reviews", r.id, "rejected")}
                 onDelete={() => del("teacher_reviews", r.id)}
+                onReport={() => quickReport("teacher_review", r.id)}
+                onGradeCorrection={() => r.teacher_id && quickGradeCorrection(r.teacher_id, r.teacher_name ?? "Teacher", r.school_name)}
+                onSuspicious={() => quickSuspicious(r.user_id)}
               />
             ))
           )}
@@ -297,6 +303,8 @@ function AdminInner() {
                 onApprove={() => setStatus("school_reviews", r.id, "approved")}
                 onReject={() => setStatus("school_reviews", r.id, "rejected")}
                 onDelete={() => del("school_reviews", r.id)}
+                onReport={() => quickReport("school_review", r.id)}
+                onSuspicious={() => quickSuspicious(r.user_id)}
               />
             ))
           )}
