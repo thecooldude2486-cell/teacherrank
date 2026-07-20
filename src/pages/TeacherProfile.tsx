@@ -65,7 +65,7 @@ export default function TeacherProfile() {
     });
     if (error) { toast.error(error.message); return; }
     setReported(p => ({ ...p, [rid]: true }));
-    toast.success("Thanks — this review has been flagged for moderator review.");
+    toast.success("You have successfully reported this review.");
   };
 
   const requestGradeCorrection = async (rid: string) => {
@@ -79,7 +79,7 @@ export default function TeacherProfile() {
     });
     if (error) { toast.error(error.message); return; }
     setGcSent(p => ({ ...p, [rid]: true }));
-    toast.success("Grade correction request submitted for review.");
+    toast.success("You have successfully requested a grade correction.");
   };
 
   const reportSuspicious = async (rid: string) => {
@@ -98,7 +98,7 @@ export default function TeacherProfile() {
     });
     if (error) { toast.error(error.message); return; }
     setSusSent(p => ({ ...p, [rid]: true }));
-    toast.success("Thanks — flagged for moderator review.");
+    toast.success("You have successfully flagged suspicious activity.");
   };
 
 
