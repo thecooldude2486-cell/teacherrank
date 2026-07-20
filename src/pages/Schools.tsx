@@ -31,7 +31,7 @@ export default function Schools() {
 
   return (
     <div className="container py-10">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
           <h1 className="text-3xl md:text-4xl mb-2">Primary school rankings</h1>
           <p className="text-muted-foreground">Overall scores based on parent feedback across learning, environment, location and community.</p>
@@ -44,7 +44,7 @@ export default function Schools() {
             if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
             else navigate("/submit-school");
           }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition-opacity self-start">
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition-opacity self-start">
           <MessageSquareHeart className="w-4 h-4" /> Rank School
         </Link>
       </header>
