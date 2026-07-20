@@ -192,6 +192,10 @@ function AdminInner() {
     reload();
   };
 
+  const susReports = reports.filter(r => (r.reason ?? "").toLowerCase().startsWith("suspicious activity"));
+  const plainReports = reports.filter(r => !(r.reason ?? "").toLowerCase().startsWith("suspicious activity"));
+  const suspiciousCount = lockouts.length + susReports.length;
+
   const tabs: { id: Tab; label: string; count: number; icon: any; tone?: "danger" }[] = [
     { id: "pending-teachers", label: "Pending teachers", count: pendingT.length, icon: GraduationCap },
     { id: "pending-schools", label: "Pending schools", count: pendingS.length, icon: SchoolIcon },
@@ -199,8 +203,8 @@ function AdminInner() {
     { id: "pending-sreviews", label: "Pending school reviews", count: pendingSR.length, icon: MessageSquareHeart },
     { id: "grade-corrections", label: "Grade corrections", count: corrections.length, icon: BookOpen },
     { id: "verifications", label: "Verifications", count: verifications.length, icon: BadgeCheck },
-    { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
-    { id: "suspicious", label: "Suspicious activity", count: lockouts.length, icon: ShieldAlert, tone: "danger" },
+    { id: "reports", label: "Reports", count: plainReports.length, icon: Flag, tone: "danger" },
+    { id: "suspicious", label: "Suspicious activity", count: suspiciousCount, icon: ShieldAlert, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
     { id: "all-teachers", label: "All teachers", count: allTeachers.length, icon: GraduationCap },
     { id: "all-schools", label: "All schools", count: allSchools.length, icon: SchoolIcon },
@@ -375,8 +379,8 @@ function AdminInner() {
           )}
 
           {tab === "reports" && (
-            reports.length === 0 ? <EmptyState label="No reports right now." /> :
-            reports.map(rep => (
+            plainReports.length === 0 ? <EmptyState label="No reports right now." /> :
+            plainReports.map(rep => (
               <ReviewRow
                 key={rep.id}
                 heading={<><span className="font-semibold text-foreground capitalize">{rep.review_type}</span> · {rep.reason}</>}
@@ -432,40 +436,59 @@ function AdminInner() {
 
 
           {tab === "suspicious" && (
-            lockouts.length === 0 ? <EmptyState label="No suspicious activity recorded." /> :
-            lockouts.map(l => {
-              const until = new Date(l.locked_until);
-              const active = until.getTime() > Date.now();
-              const userLabel = users.find(u => u.id === l.user_id);
-              return (
-                <div key={l.user_id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
-                  <div className="min-w-0">
-                    <div className="font-semibold text-foreground truncate">
-                      {userLabel?.display_name || userLabel?.email || l.user_id}
-                      {active ? (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold uppercase tracking-wide">Locked</span>
-                      ) : (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-secondary text-foreground/70 text-[10px] font-semibold uppercase tracking-wide">Expired</span>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {l.reason || "No reason recorded"} · until {until.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={async () => {
-                        const { error } = await supabase.from("submission_lockouts" as any).delete().eq("user_id", l.user_id);
-                        if (error) toast.error(error.message); else { toast.success("Lockout cleared."); reload(); }
+            (lockouts.length === 0 && susReports.length === 0)
+              ? <EmptyState label="No suspicious activity recorded." />
+              : (
+                <>
+                  {susReports.map(rep => (
+                    <ReviewRow
+                      key={rep.id}
+                      heading={<><span className="font-semibold text-foreground capitalize">{rep.review_type}</span> · {rep.reason}</>}
+                      body={rep.details}
+                      meta={`${new Date(rep.created_at).toLocaleDateString()} · flagged by user`}
+                      approveLabel="Mark reviewed"
+                      onApprove={async () => {
+                        const { error } = await supabase.from("reports").update({ status: "reviewed" }).eq("id", rep.id);
+                        if (error) toast.error(error.message); else { toast.success("Marked reviewed."); reload(); }
                       }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg border border-border bg-card hover:bg-secondary transition-colors"
-                    >
-                      <X className="w-4 h-4" /> Clear lockout
-                    </button>
-                  </div>
-                </div>
-              );
-            })
+                      onDelete={() => del("reports", rep.id)}
+                    />
+                  ))}
+                  {lockouts.map(l => {
+                    const until = new Date(l.locked_until);
+                    const active = until.getTime() > Date.now();
+                    const userLabel = users.find(u => u.id === l.user_id);
+                    return (
+                      <div key={l.user_id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-foreground truncate">
+                            {userLabel?.display_name || userLabel?.email || l.user_id}
+                            {active ? (
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-[10px] font-semibold uppercase tracking-wide">Locked</span>
+                            ) : (
+                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-secondary text-foreground/70 text-[10px] font-semibold uppercase tracking-wide">Expired</span>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {l.reason || "No reason recorded"} · until {until.toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={async () => {
+                              const { error } = await supabase.from("submission_lockouts" as any).delete().eq("user_id", l.user_id);
+                              if (error) toast.error(error.message); else { toast.success("Lockout cleared."); reload(); }
+                            }}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg border border-border bg-card hover:bg-secondary transition-colors"
+                          >
+                            <X className="w-4 h-4" /> Clear lockout
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )
           )}
 
 
