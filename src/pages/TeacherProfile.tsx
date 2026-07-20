@@ -4,7 +4,7 @@ import {
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
 } from "@/lib/mockData";
 import { StarRating } from "@/components/StarRating";
-import { Flag, MapPin, MessageSquareHeart, ArrowLeft } from "lucide-react";
+import { Flag, MapPin, MessageSquareHeart, ArrowLeft, BookOpen, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,8 @@ export default function TeacherProfile() {
   const { user } = useAuth();
   const teacher = teachers.find(t => t.id === id);
   const [reported, setReported] = useState<Record<string, boolean>>({});
+  const [gcSent, setGcSent] = useState<Record<string, boolean>>({});
+  const [susSent, setSusSent] = useState<Record<string, boolean>>({});
 
 
 
@@ -64,6 +66,39 @@ export default function TeacherProfile() {
     if (error) { toast.error(error.message); return; }
     setReported(p => ({ ...p, [rid]: true }));
     toast.success("Thanks — this review has been flagged for moderator review.");
+  };
+
+  const requestGradeCorrection = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to request a grade correction."); return; }
+    const requested_grade = window.prompt(`Suggest the correct grade for ${teacher.name} (e.g. "Year 3"):`, "");
+    if (!requested_grade || !requested_grade.trim()) return;
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id: teacher.id, teacher_name: teacher.name,
+      requested_grade: requested_grade.trim(),
+      submitted_by_user_id: user.id, status: "pending",
+    });
+    if (error) { toast.error(error.message); return; }
+    setGcSent(p => ({ ...p, [rid]: true }));
+    toast.success("Grade correction request submitted for review.");
+  };
+
+  const reportSuspicious = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to flag suspicious activity."); return; }
+    const reason = window.prompt("Describe the suspicious activity (e.g. fake review, spam, bot):");
+    if (!reason || !reason.trim()) return;
+    const rev = teacherReviews.find(r => r.id === rid);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
+    const review_id = isUuid ? rid : crypto.randomUUID();
+    const { error } = await supabase.from("reports").insert({
+      review_type: "teacher" as any,
+      review_id,
+      reported_by_user_id: user.id,
+      reason: `Suspicious activity: ${reason.trim()}`,
+      details: [`Teacher: ${teacher.name}`, rev?.written_feedback ? `Excerpt: ${rev.written_feedback.slice(0,200)}` : null].filter(Boolean).join("\n"),
+    });
+    if (error) { toast.error(error.message); return; }
+    setSusSent(p => ({ ...p, [rid]: true }));
+    toast.success("Thanks — flagged for moderator review.");
   };
 
 
@@ -184,10 +219,20 @@ export default function TeacherProfile() {
                 </div>
                 <div className="text-xs text-muted-foreground mb-3">{r.created_at}</div>
                 <p className="text-sm leading-relaxed text-foreground/90 mb-3">{r.written_feedback}</p>
-                <button onClick={() => report(r.id)} disabled={reported[r.id]}
-                  className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
-                  <Flag className="w-3.5 h-3.5" /> {reported[r.id] ? "Reported" : "Report Review"}
-                </button>
+                <div className="flex items-center gap-4 pt-1 border-t border-border/40 mt-2">
+                  <button onClick={() => report(r.id)} disabled={reported[r.id]} title="Report this review"
+                    className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Flag className="w-3.5 h-3.5" /> {reported[r.id] ? "Reported" : "Report"}
+                  </button>
+                  <button onClick={() => requestGradeCorrection(r.id)} disabled={gcSent[r.id]} title="Request grade correction"
+                    className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                    <BookOpen className="w-3.5 h-3.5" /> {gcSent[r.id] ? "Sent" : "Grade correction"}
+                  </button>
+                  <button onClick={() => reportSuspicious(r.id)} disabled={susSent[r.id]} title="Flag suspicious activity"
+                    className="text-xs font-medium inline-flex items-center gap-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed">
+                    <ShieldAlert className="w-3.5 h-3.5" /> {susSent[r.id] ? "Flagged" : "Suspicious"}
+                  </button>
+                </div>
               </article>
             ))}
           </div>
