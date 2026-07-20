@@ -83,10 +83,20 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
           <MiniStat label="Location" value={stats.breakdown?.location_convenience ?? 0} />
         </div>
 
-        <Link to={`/schools/${school.id}`}
-          className="mt-auto inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-          View School Profile
-        </Link>
+        <div className="mt-auto flex items-center gap-2">
+          <Link to={`/schools/${school.id}`}
+            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+            View School Profile
+          </Link>
+          <button onClick={() => flag("report")} disabled={reported} title="Report this school"
+            className="p-2.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 disabled:opacity-40 disabled:cursor-not-allowed">
+            <Flag className="w-4 h-4" />
+          </button>
+          <button onClick={() => flag("suspicious")} disabled={susSent} title="Flag suspicious activity"
+            className="p-2.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 disabled:opacity-40 disabled:cursor-not-allowed">
+            <ShieldAlert className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </article>
   );
