@@ -30,6 +30,7 @@ export default function SchoolProfile() {
   const { user } = useAuth();
   const school = findSchool(id || "");
   const [reported, setReported] = useState<Record<string, boolean>>({});
+  const [susSent, setSusSent] = useState<Record<string, boolean>>({});
 
 
   if (!school) {
