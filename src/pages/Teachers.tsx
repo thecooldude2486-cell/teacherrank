@@ -116,7 +116,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
     <label className="block">
       <span className="block text-xs font-medium text-muted-foreground mb-1.5 ml-1">{label}</span>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full bg-secondary/60 border border-border rounded-2xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+        className="w-full bg-secondary/60 border border-border rounded-2xl pl-3 pr-5 py-2.5 text-sm outline-none select-polished focus:ring-2 focus:ring-primary/30 focus:border-primary hover:border-primary/40">
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     </label>

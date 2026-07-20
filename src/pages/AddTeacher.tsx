@@ -61,13 +61,13 @@ function AddTeacherForm() {
         </Field>
         <div className="grid md:grid-cols-2 gap-5">
           <Field label="School">
-            <select value={schoolId} onChange={e => setSchoolId(e.target.value)} className={inputCls}>
+            <select value={schoolId} onChange={e => setSchoolId(e.target.value)} className={selectCls}>
               <option value="">Select school…</option>
               {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </Field>
           <Field label="Year level taught">
-            <select value={yearLevel} onChange={e => setYearLevel(e.target.value)} className={inputCls}>
+            <select value={yearLevel} onChange={e => setYearLevel(e.target.value)} className={selectCls}>
               <option value="">Select year…</option>
               {["Prep", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
@@ -89,6 +89,7 @@ function AddTeacherForm() {
 }
 
 const inputCls = "w-full bg-secondary/60 border border-border rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary";
+const selectCls = "w-full bg-secondary/60 border border-border rounded-2xl pl-4 pr-5 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary select-polished hover:border-primary/40";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

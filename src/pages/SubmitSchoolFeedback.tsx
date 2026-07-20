@@ -162,7 +162,7 @@ function SubmitSchoolFeedbackForm() {
           <div>
             <label className="block text-sm font-semibold mb-2">School</label>
             <select value={schoolId} onChange={e => setSchoolId(e.target.value)}
-              className="w-full bg-secondary/60 rounded-2xl px-4 py-3 text-sm outline-none">
+              className="w-full bg-secondary/60 border border-border rounded-2xl pl-4 pr-5 py-3 text-sm outline-none select-polished focus:ring-2 focus:ring-primary/30 focus:border-primary hover:border-primary/40">
               <option value="">Choose a school…</option>
               {primarySchools.map(s => (
                 <option key={s.id} value={s.id}>{s.name} — {s.suburb}, {s.state}</option>

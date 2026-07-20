@@ -58,7 +58,7 @@ export default function Schools() {
             className="flex-1 bg-transparent outline-none py-2.5 text-sm" />
         </div>
         <select value={type} onChange={e => setType(e.target.value)}
-          className="bg-secondary/60 rounded-full px-4 py-2.5 text-sm outline-none">
+          className="bg-secondary/60 border border-border rounded-full pl-4 pr-5 py-2.5 text-sm outline-none select-polished focus:ring-2 focus:ring-primary/30 focus:border-primary hover:border-primary/40">
           <option value="all">All school types</option>
           <option value="Public">Public</option>
           <option value="Private">Private</option>
