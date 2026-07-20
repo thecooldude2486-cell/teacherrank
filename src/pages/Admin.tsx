@@ -174,6 +174,8 @@ function AdminInner() {
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
     { id: "suspicious", label: "Suspicious activity", count: lockouts.length, icon: ShieldAlert, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
+    { id: "all-teachers", label: "All teachers", count: allTeachers.length, icon: GraduationCap },
+    { id: "all-schools", label: "All schools", count: allSchools.length, icon: SchoolIcon },
   ];
 
 
