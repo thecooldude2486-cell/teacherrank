@@ -39,8 +39,8 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
       details: `School listing: ${school.name} (${school.suburb}, ${school.state})`,
     });
     if (error) { toast.error(error.message); return; }
-    if (kind === "report") setReported(true); else setSusSent(true);
-    toast.success("Thanks — flagged for moderator review.");
+    if (kind === "report") { setReported(true); toast.success("You have successfully reported this school."); }
+    else { setSusSent(true); toast.success("You have successfully flagged suspicious activity."); }
   };
   return (
     <article className="bg-card rounded-3xl border border-border/60 shadow-card overflow-hidden flex flex-col">
