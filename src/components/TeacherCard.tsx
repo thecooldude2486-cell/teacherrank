@@ -32,7 +32,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
     });
     if (error) { toast.error(error.message); return; }
     setReported(true);
-    toast.success("Thanks — flagged for moderator review.");
+    toast.success("You have successfully reported this teacher.");
   };
 
   const requestGradeCorrection = async (e: React.MouseEvent) => {
@@ -47,7 +47,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
     });
     if (error) { toast.error(error.message); return; }
     setGcSent(true);
-    toast.success("Grade correction request submitted.");
+    toast.success("You have successfully requested a grade correction.");
   };
 
   const reportSuspicious = async (e: React.MouseEvent) => {
@@ -64,7 +64,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
     });
     if (error) { toast.error(error.message); return; }
     setSusSent(true);
-    toast.success("Thanks — flagged for moderator review.");
+    toast.success("You have successfully flagged suspicious activity.");
   };
 
   return (
