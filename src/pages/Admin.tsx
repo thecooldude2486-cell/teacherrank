@@ -103,6 +103,47 @@ function AdminInner() {
     reload();
   };
 
+  const quickReport = async (review_type: "teacher_review" | "school_review", review_id: string) => {
+    const reason = window.prompt("Report reason (short label):", "Flagged by admin");
+    if (!reason) return;
+    const details = window.prompt("Additional details (optional):", "") ?? "";
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("reports").insert({
+      review_type, review_id, reason, details, status: "pending",
+      reported_by_user_id: user?.id ?? null,
+    } as any);
+    if (error) return toast.error(error.message);
+    toast.success("Report filed.");
+    reload();
+  };
+
+  const quickGradeCorrection = async (teacher_id: string, teacher_name: string, school_name?: string | null) => {
+    const requested_grade = window.prompt(`Grade to add for ${teacher_name} (e.g. "Year 3"):`, "");
+    if (!requested_grade) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id, teacher_name, school_name: school_name ?? null,
+      requested_grade, submitted_by_user_id: user?.id ?? null, status: "pending",
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Grade correction queued.");
+    reload();
+  };
+
+  const quickSuspicious = async (user_id: string | null | undefined) => {
+    if (!user_id) return toast.error("No user attached to this item.");
+    const hoursStr = window.prompt("Lock this user for how many hours?", "1");
+    const hours = Number(hoursStr);
+    if (!hours || hours <= 0) return;
+    const reason = window.prompt("Reason:", "Suspicious activity") ?? "Suspicious activity";
+    const locked_until = new Date(Date.now() + hours * 3600_000).toISOString();
+    const { error } = await supabase.from("submission_lockouts" as any)
+      .upsert({ user_id, locked_until, reason }, { onConflict: "user_id" });
+    if (error) return toast.error(error.message);
+    toast.success(`User locked for ${hours}h.`);
+    reload();
+  };
+
   const resolveCorrection = async (row: any, approve: boolean) => {
     if (approve) {
       addTeacherGrade(row.teacher_id, row.requested_grade);
