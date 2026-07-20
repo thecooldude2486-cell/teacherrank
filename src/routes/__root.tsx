@@ -114,18 +114,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function Disclaimer() {
-  const [dismissed, setDismissed] = useState(false);
+  // Start hidden on SSR/first paint; reveal after we've checked localStorage on the client.
+  // This prevents a flash on every page navigation for users who've already dismissed it.
+  const [hydrated, setHydrated] = useState(false);
+  const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    if (localStorage.getItem("disclaimer-read") === "true") {
-      setDismissed(true);
-    }
+    const alreadyRead = localStorage.getItem("disclaimer-read") === "true";
+    setDismissed(alreadyRead);
+    setHydrated(true);
   }, []);
 
-  if (dismissed) return null;
+  if (!hydrated || dismissed) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-xs rounded-lg border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
+    <div className="fixed bottom-4 right-4 z-[100] max-w-xs rounded-lg border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
       <p className="text-xs font-bold uppercase text-red-500">
         DISCLAIMER!
       </p>
@@ -134,8 +137,8 @@ function Disclaimer() {
       </p>
       <button
         onClick={() => {
-          setDismissed(true);
           localStorage.setItem("disclaimer-read", "true");
+          setDismissed(true);
         }}
         className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
       >
