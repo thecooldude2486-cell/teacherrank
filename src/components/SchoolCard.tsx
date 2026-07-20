@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
-import { MapPin, Users } from "lucide-react";
+import { MapPin, Users, Flag, ShieldAlert } from "lucide-react";
 import { PrimarySchool, schoolStats } from "@/lib/schoolsData";
 import { StarRating } from "@/components/StarRating";
+import { useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
