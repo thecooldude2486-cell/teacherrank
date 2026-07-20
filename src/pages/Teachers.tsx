@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { teachers, schools, teacherStats, schoolName } from "@/lib/mockData";
+import { teachers as mockTeachers, schools, teacherStats, schoolName, type Teacher } from "@/lib/mockData";
 import { rankingScore } from "@/lib/ranking";
 import TeacherCard from "@/components/TeacherCard";
 import { SlidersHorizontal, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Teachers() {
   const [params] = useSearchParams();
