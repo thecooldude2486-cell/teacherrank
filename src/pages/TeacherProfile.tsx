@@ -4,7 +4,7 @@ import {
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
 } from "@/lib/mockData";
 import { StarRating } from "@/components/StarRating";
-import { Flag, MapPin, MessageSquareHeart, ArrowLeft } from "lucide-react";
+import { Flag, MapPin, MessageSquareHeart, ArrowLeft, BookOpen, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
