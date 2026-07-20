@@ -103,6 +103,47 @@ function AdminInner() {
     reload();
   };
 
+  const quickReport = async (review_type: "teacher_review" | "school_review", review_id: string) => {
+    const reason = window.prompt("Report reason (short label):", "Flagged by admin");
+    if (!reason) return;
+    const details = window.prompt("Additional details (optional):", "") ?? "";
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("reports").insert({
+      review_type, review_id, reason, details, status: "pending",
+      reported_by_user_id: user?.id ?? null,
+    } as any);
+    if (error) return toast.error(error.message);
+    toast.success("Report filed.");
+    reload();
+  };
+
+  const quickGradeCorrection = async (teacher_id: string, teacher_name: string, school_name?: string | null) => {
+    const requested_grade = window.prompt(`Grade to add for ${teacher_name} (e.g. "Year 3"):`, "");
+    if (!requested_grade) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("teacher_grade_corrections" as any).insert({
+      teacher_id, teacher_name, school_name: school_name ?? null,
+      requested_grade, submitted_by_user_id: user?.id ?? null, status: "pending",
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Grade correction queued.");
+    reload();
+  };
+
+  const quickSuspicious = async (user_id: string | null | undefined) => {
+    if (!user_id) return toast.error("No user attached to this item.");
+    const hoursStr = window.prompt("Lock this user for how many hours?", "1");
+    const hours = Number(hoursStr);
+    if (!hours || hours <= 0) return;
+    const reason = window.prompt("Reason:", "Suspicious activity") ?? "Suspicious activity";
+    const locked_until = new Date(Date.now() + hours * 3600_000).toISOString();
+    const { error } = await supabase.from("submission_lockouts" as any)
+      .upsert({ user_id, locked_until, reason }, { onConflict: "user_id" });
+    if (error) return toast.error(error.message);
+    toast.success(`User locked for ${hours}h.`);
+    reload();
+  };
+
   const resolveCorrection = async (row: any, approve: boolean) => {
     if (approve) {
       addTeacherGrade(row.teacher_id, row.requested_grade);
@@ -202,6 +243,8 @@ function AdminInner() {
                 onApprove={() => setStatus("teachers", t.id, "approved")}
                 onReject={() => setStatus("teachers", t.id, "rejected")}
                 onDelete={() => del("teachers", t.id)}
+                onGradeCorrection={() => quickGradeCorrection(t.id, t.name)}
+                onSuspicious={() => quickSuspicious(t.submitted_by_user_id)}
               />
             ))
           )}
@@ -218,6 +261,7 @@ function AdminInner() {
                 onApprove={() => setStatus("schools", s.id, "approved")}
                 onReject={() => setStatus("schools", s.id, "rejected")}
                 onDelete={() => del("schools", s.id)}
+                onSuspicious={() => quickSuspicious(s.submitted_by_user_id)}
               />
             ))
           )}
@@ -237,6 +281,9 @@ function AdminInner() {
                 onApprove={() => setStatus("teacher_reviews", r.id, "approved")}
                 onReject={() => setStatus("teacher_reviews", r.id, "rejected")}
                 onDelete={() => del("teacher_reviews", r.id)}
+                onReport={() => quickReport("teacher_review", r.id)}
+                onGradeCorrection={() => r.teacher_id && quickGradeCorrection(r.teacher_id, r.teacher_name ?? "Teacher", r.school_name)}
+                onSuspicious={() => quickSuspicious(r.user_id)}
               />
             ))
           )}
@@ -256,6 +303,8 @@ function AdminInner() {
                 onApprove={() => setStatus("school_reviews", r.id, "approved")}
                 onReject={() => setStatus("school_reviews", r.id, "rejected")}
                 onDelete={() => del("school_reviews", r.id)}
+                onReport={() => quickReport("school_review", r.id)}
+                onSuspicious={() => quickSuspicious(r.user_id)}
               />
             ))
           )}
@@ -470,9 +519,10 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
-function ItemRow({ avatar, title, subtitle, href, onApprove, onReject, onDelete }: {
+function ItemRow({ avatar, title, subtitle, href, onApprove, onReject, onDelete, onReport, onGradeCorrection, onSuspicious }: {
   avatar: string; title: string; subtitle?: string; href?: string;
   onApprove: () => void; onReject: () => void; onDelete: () => void;
+  onReport?: () => void; onGradeCorrection?: () => void; onSuspicious?: () => void;
 }) {
   const titleNode = href ? (
     <Link to={href} className="font-semibold text-foreground truncate hover:text-primary underline-offset-2 hover:underline">{title}</Link>
@@ -490,15 +540,17 @@ function ItemRow({ avatar, title, subtitle, href, onApprove, onReject, onDelete 
           {subtitle && <p className="text-sm text-muted-foreground truncate">{subtitle}</p>}
         </div>
       </div>
-      <RowActions onApprove={onApprove} onReject={onReject} onDelete={onDelete} />
+      <RowActions onApprove={onApprove} onReject={onReject} onDelete={onDelete}
+        onReport={onReport} onGradeCorrection={onGradeCorrection} onSuspicious={onSuspicious} />
     </div>
   );
 }
 
 
-function ReviewRow({ heading, body, meta, approveLabel, onApprove, onReject, onDelete }: {
+function ReviewRow({ heading, body, meta, approveLabel, onApprove, onReject, onDelete, onReport, onGradeCorrection, onSuspicious }: {
   heading: React.ReactNode; body?: string | null; meta?: string; approveLabel?: string;
   onApprove: () => void; onReject?: () => void; onDelete: () => void;
+  onReport?: () => void; onGradeCorrection?: () => void; onSuspicious?: () => void;
 }) {
   return (
     <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-start justify-between gap-4 hover:bg-secondary/30 transition-colors">
@@ -509,14 +561,16 @@ function ReviewRow({ heading, body, meta, approveLabel, onApprove, onReject, onD
         </p>
         {meta && <div className="text-xs text-muted-foreground">{meta}</div>}
       </div>
-      <RowActions approveLabel={approveLabel} onApprove={onApprove} onReject={onReject} onDelete={onDelete} />
+      <RowActions approveLabel={approveLabel} onApprove={onApprove} onReject={onReject} onDelete={onDelete}
+        onReport={onReport} onGradeCorrection={onGradeCorrection} onSuspicious={onSuspicious} />
     </div>
   );
 }
 
-function RowActions({ approveLabel = "Approve", onApprove, onReject, onDelete }: {
+function RowActions({ approveLabel = "Approve", onApprove, onReject, onDelete, onReport, onGradeCorrection, onSuspicious }: {
   approveLabel?: string;
   onApprove: () => void; onReject?: () => void; onDelete: () => void;
+  onReport?: () => void; onGradeCorrection?: () => void; onSuspicious?: () => void;
 }) {
   return (
     <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -532,6 +586,24 @@ function RowActions({ approveLabel = "Approve", onApprove, onReject, onDelete }:
           className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-foreground/80 border border-border bg-card hover:bg-secondary transition-colors"
         >
           <X className="w-4 h-4" /> Reject
+        </button>
+      )}
+      {onReport && (
+        <button onClick={onReport} title="File a report"
+          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+          <Flag className="w-5 h-5" />
+        </button>
+      )}
+      {onGradeCorrection && (
+        <button onClick={onGradeCorrection} title="Request grade correction"
+          className="p-2 text-primary hover:bg-primary-soft rounded-lg transition-colors">
+          <BookOpen className="w-5 h-5" />
+        </button>
+      )}
+      {onSuspicious && (
+        <button onClick={onSuspicious} title="Mark as suspicious / lock user"
+          className="p-2 text-amber-600 hover:bg-amber-500/10 rounded-lg transition-colors">
+          <ShieldAlert className="w-5 h-5" />
         </button>
       )}
       <button
