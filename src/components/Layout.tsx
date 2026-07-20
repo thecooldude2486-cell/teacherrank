@@ -153,7 +153,7 @@ export default function Layout() {
           <div>
             <h4 className="font-semibold mb-3 text-base">Explore</h4>
             <ul className="space-y-2 text-muted-foreground">
-              {links.map(l => <li key={l.to}><Link to={l.to} className="hover:text-foreground transition-colors">{l.label}</Link></li>)}
+              {links.map(l => <li key={l.to}><Link to={l.to} onClick={handleMenuClick(l.to)} className="hover:text-foreground transition-colors">{l.label}</Link></li>)}
             </ul>
           </div>
         </div>
