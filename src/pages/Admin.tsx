@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { addTeacherGrade } from "@/lib/mockData";
 
 
-type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users";
+type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users" | "all-teachers" | "all-schools";
 type UserRow = { id: string; email: string | null; display_name: string | null; is_admin: boolean };
 
 
@@ -39,9 +39,13 @@ function AdminInner() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [userQuery, setUserQuery] = useState("");
   const [verifications, setVerifications] = useState<any[]>([]);
+  const [allTeachers, setAllTeachers] = useState<any[]>([]);
+  const [allSchools, setAllSchools] = useState<any[]>([]);
+  const [teacherQuery, setTeacherQuery] = useState("");
+  const [schoolQuery, setSchoolQuery] = useState("");
 
   const reload = async () => {
-    const [t, s, tr, sr, r, gc, lo, profs, roles, vr] = await Promise.all([
+    const [t, s, tr, sr, r, gc, lo, profs, roles, vr, at, asc] = await Promise.all([
       supabase.from("teachers").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("schools").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("teacher_reviews").select("*").eq("status", "pending").order("created_at", { ascending: false }),
@@ -52,11 +56,15 @@ function AdminInner() {
       supabase.from("profiles").select("id,email,display_name").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id,role").eq("role", "admin"),
       supabase.from("verification_requests" as any).select("*").eq("status", "pending").order("created_at", { ascending: false }),
+      supabase.from("teachers").select("*").order("created_at", { ascending: false }),
+      supabase.from("schools").select("*").order("created_at", { ascending: false }),
     ]);
     setPT(t.data ?? []); setPS(s.data ?? []); setPTR(tr.data ?? []); setPSR(sr.data ?? []); setReports(r.data ?? []);
     setCorrections((gc as any).data ?? []);
     setLockouts((lo as any).data ?? []);
     setVerifications((vr as any).data ?? []);
+    setAllTeachers(at.data ?? []);
+    setAllSchools(asc.data ?? []);
     const adminIds = new Set((roles.data ?? []).map((x: any) => x.user_id));
     setUsers((profs.data ?? []).map((p: any) => ({ ...p, is_admin: adminIds.has(p.id) })));
   };
@@ -166,6 +174,8 @@ function AdminInner() {
     { id: "reports", label: "Reports", count: reports.length, icon: Flag, tone: "danger" },
     { id: "suspicious", label: "Suspicious activity", count: lockouts.length, icon: ShieldAlert, tone: "danger" },
     { id: "users", label: "Users", count: users.length, icon: UsersIcon },
+    { id: "all-teachers", label: "All teachers", count: allTeachers.length, icon: GraduationCap },
+    { id: "all-schools", label: "All schools", count: allSchools.length, icon: SchoolIcon },
   ];
 
 
@@ -483,6 +493,102 @@ function AdminInner() {
                             <ShieldCheck className="w-4 h-4" /> Make admin
                           </button>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {tab === "all-teachers" && (
+            <div className="p-5 md:p-6 space-y-4">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={teacherQuery}
+                  onChange={e => setTeacherQuery(e.target.value)}
+                  placeholder="Search teachers…"
+                  className="w-full pl-9 pr-3 py-2.5 bg-secondary/60 border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+              </div>
+              {(() => {
+                const q = teacherQuery.trim().toLowerCase();
+                const filtered = q
+                  ? allTeachers.filter((t: any) => (t.name ?? "").toLowerCase().includes(q) || (t.location ?? "").toLowerCase().includes(q))
+                  : allTeachers;
+                if (filtered.length === 0) return <EmptyState label="No teachers found." />;
+                return (
+                  <div className="divide-y divide-border/40 border border-border/60 rounded-2xl overflow-hidden">
+                    {filtered.map((t: any) => (
+                      <div key={t.id} className="p-4 flex items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-primary-soft text-primary font-bold flex items-center justify-center shrink-0">
+                            {initials(t.name)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Link to={`/teachers/${t.id}`} className="font-semibold truncate hover:text-primary underline-offset-2 hover:underline">{t.name}</Link>
+                              <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
+                                t.status === "approved" ? "bg-primary-soft text-primary" :
+                                t.status === "pending" ? "bg-amber-500/10 text-amber-700" :
+                                "bg-destructive/10 text-destructive")}>{t.status}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{[t.year_level, t.class_type, t.location].filter(Boolean).join(" · ")}</div>
+                          </div>
+                        </div>
+                        <button onClick={() => del("teachers", t.id)} title="Delete"
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {tab === "all-schools" && (
+            <div className="p-5 md:p-6 space-y-4">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={schoolQuery}
+                  onChange={e => setSchoolQuery(e.target.value)}
+                  placeholder="Search schools…"
+                  className="w-full pl-9 pr-3 py-2.5 bg-secondary/60 border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+              </div>
+              {(() => {
+                const q = schoolQuery.trim().toLowerCase();
+                const filtered = q
+                  ? allSchools.filter((s: any) => (s.name ?? "").toLowerCase().includes(q) || (s.location ?? "").toLowerCase().includes(q))
+                  : allSchools;
+                if (filtered.length === 0) return <EmptyState label="No schools found." />;
+                return (
+                  <div className="divide-y divide-border/40 border border-border/60 rounded-2xl overflow-hidden">
+                    {filtered.map((s: any) => (
+                      <div key={s.id} className="p-4 flex items-center justify-between gap-4 hover:bg-secondary/30 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-primary-soft text-primary font-bold flex items-center justify-center shrink-0">
+                            {initials(s.name)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Link to={`/schools/${s.id}`} className="font-semibold truncate hover:text-primary underline-offset-2 hover:underline">{s.name}</Link>
+                              <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
+                                s.status === "approved" ? "bg-primary-soft text-primary" :
+                                s.status === "pending" ? "bg-amber-500/10 text-amber-700" :
+                                "bg-destructive/10 text-destructive")}>{s.status}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{[s.location, s.school_type].filter(Boolean).join(" · ")}</div>
+                          </div>
+                        </div>
+                        <button onClick={() => del("schools", s.id)} title="Delete"
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </div>
                     ))}
                   </div>
