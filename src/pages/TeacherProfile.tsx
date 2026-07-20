@@ -147,6 +147,24 @@ export default function TeacherProfile() {
         </div>
       </header>
 
+      {/* Profile-level moderation actions */}
+      <div className="flex flex-wrap gap-3 mb-8">
+        <button onClick={() => report(teacher.id)}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-soft">
+          <Flag className="w-4 h-4" /> Report teacher
+        </button>
+        <button onClick={() => requestGradeCorrection(teacher.id)}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-soft">
+          <BookOpen className="w-4 h-4" /> Request grade correction
+        </button>
+        <button onClick={() => reportSuspicious(teacher.id)}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow-soft">
+          <ShieldAlert className="w-4 h-4" /> Flag suspicious activity
+        </button>
+      </div>
+
+
+
       {/* Category scores */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Category scores</h2>
