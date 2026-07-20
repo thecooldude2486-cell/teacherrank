@@ -77,6 +77,25 @@ export default function SchoolProfile() {
     toast.success("Thanks — this review has been flagged for moderator review.");
   };
 
+  const reportSuspicious = async (rid: string) => {
+    if (!user) { toast.error("Please sign in to flag suspicious activity."); return; }
+    const reason = window.prompt("Describe the suspicious activity (e.g. fake review, spam, bot):");
+    if (!reason || !reason.trim()) return;
+    const rev = reviews.find(r => r.id === rid);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid);
+    const review_id = isUuid ? rid : crypto.randomUUID();
+    const { error } = await supabase.from("reports").insert({
+      review_type: "school" as any,
+      review_id,
+      reported_by_user_id: user.id,
+      reason: `Suspicious activity: ${reason.trim()}`,
+      details: [`School: ${school.name}`, rev?.written_feedback ? `Excerpt: ${rev.written_feedback.slice(0,200)}` : null].filter(Boolean).join("\n"),
+    });
+    if (error) { toast.error(error.message); return; }
+    setSusSent(p => ({ ...p, [rid]: true }));
+    toast.success("Thanks — flagged for moderator review.");
+  };
+
 
 
   return (
