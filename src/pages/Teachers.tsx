@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { teachers, schools, teacherStats, schoolName } from "@/lib/mockData";
+import { teachers as mockTeachers, schools, teacherStats, schoolName, type Teacher } from "@/lib/mockData";
 import { rankingScore } from "@/lib/ranking";
 import TeacherCard from "@/components/TeacherCard";
 import { SlidersHorizontal, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Teachers() {
   const [params] = useSearchParams();
@@ -14,6 +15,31 @@ export default function Teachers() {
   const [minRating, setMinRating] = useState(0);
   const [location, setLocation] = useState("all");
   const [sort, setSort] = useState<"rating" | "reviews" | "newest">("rating");
+  const [dbTeachers, setDbTeachers] = useState<Teacher[]>([]);
+
+  useEffect(() => {
+    supabase.from("teachers").select("*").eq("status", "approved").then(({ data }) => {
+      if (!data) return;
+      const mapped: Teacher[] = data.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        school_id: r.school_id ?? "",
+        year_level: r.year_level ?? "",
+        year_levels: r.year_levels ?? undefined,
+        class_type: r.class_type ?? "",
+        location: r.location ?? "",
+        status: "approved",
+        created_at: r.created_at,
+        avatar_color: "#5ab3a8",
+      }));
+      setDbTeachers(mapped);
+    });
+  }, []);
+
+  const teachers = useMemo(() => {
+    const ids = new Set(dbTeachers.map(t => t.id));
+    return [...dbTeachers, ...mockTeachers.filter(t => !ids.has(t.id))];
+  }, [dbTeachers]);
 
   const yearLevels = Array.from(new Set(teachers.map(t => t.year_level)));
   const classTypes = Array.from(new Set(teachers.map(t => t.class_type)));
@@ -42,7 +68,7 @@ export default function Teachers() {
       return b.t.created_at.localeCompare(a.t.created_at);
     });
     return filtered.map(({ t }) => t);
-  }, [q, school, year, classType, location, minRating, sort]);
+  }, [q, school, year, classType, location, minRating, sort, teachers]);
 
   return (
     <div className="container py-12">
