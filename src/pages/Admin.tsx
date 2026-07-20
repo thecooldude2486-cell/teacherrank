@@ -565,8 +565,8 @@ function AdminInner() {
                             <div className="text-xs text-muted-foreground truncate">{[t.year_level, t.class_type, t.location].filter(Boolean).join(" · ")}</div>
                           </div>
                         </div>
-                        <button onClick={() => del("teachers", t.id)} title="Delete"
-                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                        <button onClick={() => del("teachers", t.id)} title={t._seed ? "Seed data" : "Delete"} disabled={t._seed}
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
