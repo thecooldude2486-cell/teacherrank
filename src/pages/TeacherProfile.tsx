@@ -27,6 +27,8 @@ export default function TeacherProfile() {
   const { user } = useAuth();
   const teacher = teachers.find(t => t.id === id);
   const [reported, setReported] = useState<Record<string, boolean>>({});
+  const [gcSent, setGcSent] = useState<Record<string, boolean>>({});
+  const [susSent, setSusSent] = useState<Record<string, boolean>>({});
 
 
 
