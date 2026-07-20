@@ -379,8 +379,8 @@ function AdminInner() {
           )}
 
           {tab === "reports" && (
-            reports.length === 0 ? <EmptyState label="No reports right now." /> :
-            reports.map(rep => (
+            plainReports.length === 0 ? <EmptyState label="No reports right now." /> :
+            plainReports.map(rep => (
               <ReviewRow
                 key={rep.id}
                 heading={<><span className="font-semibold text-foreground capitalize">{rep.review_type}</span> · {rep.reason}</>}
