@@ -68,7 +68,7 @@ export default function Teachers() {
       return b.t.created_at.localeCompare(a.t.created_at);
     });
     return filtered.map(({ t }) => t);
-  }, [q, school, year, classType, location, minRating, sort]);
+  }, [q, school, year, classType, location, minRating, sort, teachers]);
 
   return (
     <div className="container py-12">
