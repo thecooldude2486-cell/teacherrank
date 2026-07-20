@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
-import { MapPin, Users } from "lucide-react";
+import { MapPin, Users, Flag, ShieldAlert } from "lucide-react";
 import { PrimarySchool, schoolStats } from "@/lib/schoolsData";
 import { StarRating } from "@/components/StarRating";
+import { useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
@@ -14,6 +18,30 @@ function MiniStat({ label, value }: { label: string; value: number }) {
 
 export default function SchoolCard({ school }: { school: PrimarySchool }) {
   const stats = schoolStats(school.id);
+  const { user } = useAuth();
+  const [reported, setReported] = useState(false);
+  const [susSent, setSusSent] = useState(false);
+
+  const isUuid = (x: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x);
+
+  const flag = async (kind: "report" | "suspicious") => {
+    if (!user) { toast.error("Please sign in to flag this school."); return; }
+    const prompt = kind === "report"
+      ? `Why are you reporting ${school.name}?`
+      : "Describe the suspicious activity (e.g. fake school, spam):";
+    const reason = window.prompt(prompt);
+    if (!reason || !reason.trim()) return;
+    const review_id = isUuid(school.id) ? school.id : crypto.randomUUID();
+    const { error } = await supabase.from("reports").insert({
+      review_type: "school" as any, review_id,
+      reported_by_user_id: user.id,
+      reason: kind === "suspicious" ? `Suspicious activity: ${reason.trim()}` : reason.trim(),
+      details: `School listing: ${school.name} (${school.suburb}, ${school.state})`,
+    });
+    if (error) { toast.error(error.message); return; }
+    if (kind === "report") setReported(true); else setSusSent(true);
+    toast.success("Thanks — flagged for moderator review.");
+  };
   return (
     <article className="bg-card rounded-3xl border border-border/60 shadow-card overflow-hidden flex flex-col">
       <div className="h-36 relative overflow-hidden" style={{ backgroundColor: school.cover_color }}>
@@ -55,10 +83,20 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
           <MiniStat label="Location" value={stats.breakdown?.location_convenience ?? 0} />
         </div>
 
-        <Link to={`/schools/${school.id}`}
-          className="mt-auto inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-          View School Profile
-        </Link>
+        <div className="mt-auto flex items-center gap-2">
+          <Link to={`/schools/${school.id}`}
+            className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+            View School Profile
+          </Link>
+          <button onClick={() => flag("report")} disabled={reported} title="Report this school"
+            className="p-2.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 disabled:opacity-40 disabled:cursor-not-allowed">
+            <Flag className="w-4 h-4" />
+          </button>
+          <button onClick={() => flag("suspicious")} disabled={susSent} title="Flag suspicious activity"
+            className="p-2.5 rounded-full border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 disabled:opacity-40 disabled:cursor-not-allowed">
+            <ShieldAlert className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </article>
   );

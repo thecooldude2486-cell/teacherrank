@@ -153,6 +153,19 @@ export default function SchoolProfile() {
         </div>
       </header>
 
+      {/* Profile-level moderation actions */}
+      <div className="flex flex-wrap gap-3 mb-8">
+        <button onClick={() => report(school.id)}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-soft">
+          <Flag className="w-4 h-4" /> Report school
+        </button>
+        <button onClick={() => reportSuspicious(school.id)}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow-soft">
+          <ShieldAlert className="w-4 h-4" /> Flag suspicious activity
+        </button>
+      </div>
+
+
       {/* Teachers at this school */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4 inline-flex items-center gap-2">
