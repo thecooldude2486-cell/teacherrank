@@ -1,18 +1,23 @@
-## Fix: Restrict profiles table SELECT access
+## Problem
 
-**Problem:** The `profiles` table SELECT policy is `USING (true)`, so any logged-in user can read every other user's email and display name.
+Reporting a school review fails with `invalid input value for enum report_type: "school"`. The `reports.review_type` column is an enum with exactly two allowed values: `teacher_review` and `school_review`. The frontend is inserting the short forms `"school"` / `"teacher"` instead.
 
-**Fix (single migration, no app code changes):**
+## Fix
 
-1. Drop the existing policy `"Profiles readable by authenticated"` on `public.profiles`.
-2. Add two replacement SELECT policies:
-   - **Users see own profile** — `USING (auth.uid() = id)`
-   - **Admins see all profiles** — `USING (has_role(auth.uid(), 'admin'))`
+Update every `reports` insert on the client to send the full enum values:
 
-**Why this is safe:**
-- Admin panel (`Admin.tsx`) keeps working because admins still match the second policy.
-- Users editing their own profile (`Account.tsx`) keep working because they match the first.
-- No code changes are needed — the existing queries continue to return rows they're allowed to see.
-- Reviews already store `display_name` denormalized on the review rows themselves (no join to `profiles`), so public review listings are unaffected.
+- `"school"` → `"school_review"`
+- `"teacher"` → `"teacher_review"`
 
-**Out of scope:** the separate `edu_email_client_only` finding (client-side email check). Tell me if you want that fixed in the same pass.
+Files to update (all report-submission call sites):
+- `src/pages/SchoolProfile.tsx`
+- `src/pages/TeacherProfile.tsx`
+- `src/components/SchoolCard.tsx`
+- `src/components/TeacherCard.tsx`
+- any other component inserting into `reports` (quick grep for `.from('reports')` / `review_type:`)
+
+No DB migration needed — the enum already matches the intended schema; only the client strings are wrong.
+
+## Verification
+
+After the change, submit a school report and confirm the POST to `/rest/v1/reports` returns 201 and the row appears in the admin panel's Reports tab.
