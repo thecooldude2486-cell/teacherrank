@@ -192,6 +192,10 @@ function AdminInner() {
     reload();
   };
 
+  const susReports = reports.filter(r => (r.reason ?? "").toLowerCase().startsWith("suspicious activity"));
+  const plainReports = reports.filter(r => !(r.reason ?? "").toLowerCase().startsWith("suspicious activity"));
+  const suspiciousCount = lockouts.length + susReports.length;
+
   const tabs: { id: Tab; label: string; count: number; icon: any; tone?: "danger" }[] = [
     { id: "pending-teachers", label: "Pending teachers", count: pendingT.length, icon: GraduationCap },
     { id: "pending-schools", label: "Pending schools", count: pendingS.length, icon: SchoolIcon },
