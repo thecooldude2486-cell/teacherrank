@@ -6,7 +6,8 @@ import AuthGate from "@/components/AuthGate";
 import { Check, X, Trash2, Flag, ShieldCheck, GraduationCap, School as SchoolIcon, MessageSquareHeart, ArrowUp, CheckCheck, Users as UsersIcon, Search, BookOpen, ShieldAlert, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { addTeacherGrade } from "@/lib/mockData";
+import { addTeacherGrade, teachers as mockTeachers, schoolName as mockSchoolName } from "@/lib/mockData";
+import { primarySchools } from "@/lib/schoolsData";
 
 
 type Tab = "pending-teachers" | "pending-schools" | "pending-treviews" | "pending-sreviews" | "reports" | "grade-corrections" | "verifications" | "suspicious" | "users" | "all-teachers" | "all-schools";
@@ -63,8 +64,35 @@ function AdminInner() {
     setCorrections((gc as any).data ?? []);
     setLockouts((lo as any).data ?? []);
     setVerifications((vr as any).data ?? []);
-    setAllTeachers(at.data ?? []);
-    setAllSchools(asc.data ?? []);
+    const dbTeachers = at.data ?? [];
+    const dbSchools = asc.data ?? [];
+    const tIds = new Set(dbTeachers.map((x: any) => x.id));
+    const sIds = new Set(dbSchools.map((x: any) => x.id));
+    const seedTeachers = mockTeachers
+      .filter(m => !tIds.has(m.id))
+      .map(m => ({
+        id: m.id,
+        name: m.name,
+        year_level: m.year_level,
+        class_type: m.class_type,
+        location: `${m.location}${mockSchoolName(m.school_id) ? " · " + mockSchoolName(m.school_id) : ""}`,
+        status: m.status,
+        created_at: m.created_at,
+        _seed: true,
+      }));
+    const seedSchools = primarySchools
+      .filter(s => !sIds.has(s.id))
+      .map(s => ({
+        id: s.id,
+        name: s.name,
+        location: `${s.suburb}, ${s.state}`,
+        school_type: s.school_type,
+        status: "approved",
+        created_at: "2025-01-01",
+        _seed: true,
+      }));
+    setAllTeachers([...dbTeachers, ...seedTeachers]);
+    setAllSchools([...dbSchools, ...seedSchools]);
     const adminIds = new Set((roles.data ?? []).map((x: any) => x.user_id));
     setUsers((profs.data ?? []).map((p: any) => ({ ...p, is_admin: adminIds.has(p.id) })));
   };
@@ -537,8 +565,8 @@ function AdminInner() {
                             <div className="text-xs text-muted-foreground truncate">{[t.year_level, t.class_type, t.location].filter(Boolean).join(" · ")}</div>
                           </div>
                         </div>
-                        <button onClick={() => del("teachers", t.id)} title="Delete"
-                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                        <button onClick={() => del("teachers", t.id)} title={t._seed ? "Seed data" : "Delete"} disabled={t._seed}
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
@@ -585,8 +613,8 @@ function AdminInner() {
                             <div className="text-xs text-muted-foreground truncate">{[s.location, s.school_type].filter(Boolean).join(" · ")}</div>
                           </div>
                         </div>
-                        <button onClick={() => del("schools", s.id)} title="Delete"
-                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                        <button onClick={() => del("schools", s.id)} title={s._seed ? "Seed data" : "Delete"} disabled={s._seed}
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
