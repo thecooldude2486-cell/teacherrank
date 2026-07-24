@@ -24,7 +24,7 @@ function ScoreTile({ label, value }: { label: string; value: number }) {
 }
 export default function TeacherProfile() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const teacher = teachers.find(t => t.id === id);
   const [reported, setReported] = useState<Record<string, boolean>>({});
   const [gcSent, setGcSent] = useState<Record<string, boolean>>({});
