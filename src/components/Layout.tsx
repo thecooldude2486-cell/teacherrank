@@ -131,7 +131,7 @@ export default function Layout() {
 
       <main className="flex-1"><Outlet /></main>
 
-      <footer className="border-t border-border bg-secondary/50 mt-16">
+      <footer className="border-t border-border bg-secondary/50 mt-0">
         <div className="container py-10 grid md:grid-cols-3 gap-8 text-sm">
           <div>
             <div className="flex items-center gap-2 mb-3">
