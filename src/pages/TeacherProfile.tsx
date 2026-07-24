@@ -111,7 +111,7 @@ export default function TeacherProfile() {
       </Link>
 
       <header className="bg-gradient-warm rounded-[2rem] p-8 md:p-10 border border-border/60 mb-8">
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+        <div className="flex flex-col md:flex-row gap-10 md:gap-12 items-start md:items-center">
           {teacher.photo ? (
             <img src={teacher.photo} alt={teacher.name} loading="lazy" width={256} height={256}
               className="w-44 h-44 md:w-60 md:h-60 rounded-3xl object-cover shadow-soft" />
