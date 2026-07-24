@@ -7,6 +7,7 @@ import {
   RATING_GROUPS, RATING_LABELS,
 } from "@/lib/schoolsData";
 import { teachers as allTeachers, schools as mockSchools } from "@/lib/mockData";
+import { MIN_REVIEWS } from "@/lib/ranking";
 import { StarRating } from "@/components/StarRating";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -135,7 +136,7 @@ export default function SchoolProfile() {
             <p className="text-sm text-foreground/80 mt-4 max-w-2xl">{school.blurb}</p>
           </div>
           <div className="bg-card rounded-2xl p-5 text-center min-w-[140px] border border-border/60">
-            {stats.count >= 3 ? (
+            {stats.count >= MIN_REVIEWS ? (
               <>
                 <div className="text-4xl font-bold tabular-nums" style={{ fontFamily: "Fraunces, serif" }}>
                   {stats.overall || "—"}
@@ -146,7 +147,7 @@ export default function SchoolProfile() {
             ) : (
               <>
                 <div className="text-sm font-semibold text-foreground/80">Not enough reviews yet</div>
-                <div className="text-xs text-muted-foreground mt-2">{stats.count}/3 approved reviews needed</div>
+                <div className="text-xs text-muted-foreground mt-2">{stats.count}/{MIN_REVIEWS} approved reviews needed</div>
               </>
             )}
           </div>
