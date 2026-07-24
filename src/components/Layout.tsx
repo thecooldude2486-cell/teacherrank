@@ -157,7 +157,7 @@ export default function Layout() {
             </ul>
           </div>
         </div>
-        <div className="container py-4 border-t border-border text-xs text-muted-foreground">© {new Date().getFullYear()} TeacherRank. For parents and guardians of primary school students.</div>
+        <div className="container py-4 border-t border-border text-xs text-muted-foreground">© {new Date().getFullYear()} TeacherRank. For students of primary schools.</div>
       </footer>
     </div>
   );
