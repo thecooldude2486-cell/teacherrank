@@ -15,7 +15,7 @@ import SchoolProfile from "./SchoolProfile";
 import Guidelines from "./Guidelines";
 import VerificationGate from "@/components/VerificationGate";
 
-const GATED_IDS = new Set(["teachers", "schools", "submit", "submit-school", "add-teacher"]);
+const GATED_IDS = new Set(["submit", "submit-school", "add-teacher"]);
 
 
 
