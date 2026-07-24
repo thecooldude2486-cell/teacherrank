@@ -27,7 +27,7 @@ function ScoreTile({ label, value }: { label: string; value: number }) {
 
 export default function SchoolProfile() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const school = findSchool(id || "");
   const [reported, setReported] = useState<Record<string, boolean>>({});
   const [susSent, setSusSent] = useState<Record<string, boolean>>({});
