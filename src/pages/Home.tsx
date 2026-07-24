@@ -56,7 +56,7 @@ export default function Home() {
       <section className="relative overflow-x-clip bg-gradient-hero">
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
-        <div className="container relative pt-12 md:pt-16 pb-0">
+        <div className="container relative pt-12 md:pt-16 pb-6">
           <div className="max-w-3xl mx-auto text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card/80 backdrop-blur text-sm font-medium text-primary border border-border/60 mb-6">
               <Sparkles className="w-4 h-4" /> For the students and parents of primary schools
