@@ -320,6 +320,7 @@ export type Database = {
           id: string
           overall_rating: number | null
           school_name: string | null
+          school_year: number
           status: Database["public"]["Enums"]["submission_status"]
           teacher_id: string | null
           teacher_name: string | null
@@ -339,6 +340,7 @@ export type Database = {
           id?: string
           overall_rating?: number | null
           school_name?: string | null
+          school_year?: number
           status?: Database["public"]["Enums"]["submission_status"]
           teacher_id?: string | null
           teacher_name?: string | null
@@ -358,6 +360,7 @@ export type Database = {
           id?: string
           overall_rating?: number | null
           school_name?: string | null
+          school_year?: number
           status?: Database["public"]["Enums"]["submission_status"]
           teacher_id?: string | null
           teacher_name?: string | null

@@ -97,7 +97,8 @@ function SubmitFeedbackForm() {
       return;
     }
 
-    // One review per teacher rule.
+    // One review per user, per teacher, per school year.
+    const currentSchoolYear = new Date().getFullYear();
     if (user && teacherId) {
       const t = teachers.find(x => x.id === teacherId);
       const { data: existing } = await supabase
@@ -105,14 +106,16 @@ function SubmitFeedbackForm() {
         .select("id,status")
         .eq("user_id", user.id)
         .eq("teacher_name", t?.name ?? "")
+        .eq("school_year", currentSchoolYear)
         .in("status", ["pending", "approved"])
         .limit(1);
       if (existing && existing.length > 0) {
-        toast.error("You have already submitted feedback. You can edit your existing feedback or wait for admin review.");
+        toast.error("You have already reviewed this teacher for this school year. You can edit your existing review.");
         nav("/account");
         return;
       }
     }
+
 
 
     if (!teacherId || !schoolId || !yearLevel) return toast.error("Please complete teacher, school, and year level.");
@@ -159,6 +162,7 @@ function SubmitFeedbackForm() {
       teacher_name: t?.name ?? null,
       school_name: schoolName(schoolId),
       year_level: yearLevel,
+      school_year: currentSchoolYear,
       written_feedback: text.trim(),
       overall_rating: Number(overall.toFixed(2)),
       teaching_clarity_rating,
@@ -169,7 +173,15 @@ function SubmitFeedbackForm() {
       communication_rating,
       status: "pending",
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      if ((error as any).code === "23505" || /duplicate|unique/i.test(error.message)) {
+        toast.error("You have already reviewed this teacher for this school year. You can edit your existing review.");
+        nav("/account");
+        return;
+      }
+      toast.error(error.message);
+      return;
+    }
     toast.success("Thanks! Your review was submitted and is pending moderation.");
     nav(`/account`);
   };
