@@ -27,7 +27,7 @@ function ScoreTile({ label, value }: { label: string; value: number }) {
 
 export default function SchoolProfile() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const school = findSchool(id || "");
   const [reported, setReported] = useState<Record<string, boolean>>({});
   const [susSent, setSusSent] = useState<Record<string, boolean>>({});
@@ -252,14 +252,19 @@ export default function SchoolProfile() {
         <aside>
           <div className="sticky top-24 space-y-4">
             <h2 className="text-2xl">Student reviews</h2>
-            {!user ? (
+            {!user || !isVerified ? (
               <div className="bg-card rounded-3xl p-8 text-center border border-border/60">
-                <p className="text-sm text-muted-foreground mb-4">Sign in to read student reviews and share your own.</p>
-                <Link to="/auth" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-                  Log in or sign up
+                <p className="text-sm text-muted-foreground mb-4">
+                  {!user
+                    ? "Sign in and verify your email to read student reviews and share your own."
+                    : "Verify your email to read student reviews and share your own."}
+                </p>
+                <Link to={!user ? "/auth" : "/account"} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+                  {!user ? "Log in or sign up" : "Go to verification"}
                 </Link>
               </div>
             ) : reviews.length === 0 ? (
+
               <div className="bg-card rounded-3xl p-8 text-center border border-border/60 text-muted-foreground">
                 No reviews yet.
               </div>
