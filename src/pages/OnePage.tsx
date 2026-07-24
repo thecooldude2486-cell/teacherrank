@@ -96,17 +96,18 @@ export default function OnePage() {
   if (teacherMatch) {
     return (
       <section id="teacher-profile" aria-label="Teacher profile" className="scroll-mt-20">
-        <VerificationGate><TeacherProfile /></VerificationGate>
+        <TeacherProfile />
       </section>
     );
   }
   if (schoolMatch) {
     return (
       <section id="school-profile" aria-label="School profile" className="scroll-mt-20">
-        <VerificationGate><SchoolProfile /></VerificationGate>
+        <SchoolProfile />
       </section>
     );
   }
+
 
   const activeId = sections.find(s => s.path === pathname)?.id ?? "home";
   const active = sections.find(s => s.id === activeId) ?? sections[0];
