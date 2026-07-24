@@ -40,6 +40,13 @@ export default function Layout() {
     }
   };
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
@@ -134,12 +141,12 @@ export default function Layout() {
       <footer className="border-t border-border bg-secondary/50 mt-0">
         <div className="container py-10 grid md:grid-cols-3 gap-8 text-sm">
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-8 h-8 rounded-xl bg-primary text-primary-foreground grid place-items-center">
+            <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 mb-3 group w-fit">
+              <span className="w-8 h-8 rounded-xl bg-primary text-primary-foreground grid place-items-center group-hover:scale-105 transition-transform">
                 <GraduationCap className="w-4 h-4" />
               </span>
-              <span className="font-semibold" style={{ fontFamily: "Fraunces, serif" }}>TeacherRank</span>
-            </div>
+              <span className="font-semibold group-hover:text-foreground/80 transition-colors" style={{ fontFamily: "Fraunces, serif" }}>TeacherRank</span>
+            </Link>
             <p className="text-muted-foreground leading-relaxed">Respectful, moderated feedback from parents — for stronger primary school communities.</p>
           </div>
           <div>
