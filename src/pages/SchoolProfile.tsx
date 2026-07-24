@@ -117,7 +117,7 @@ export default function SchoolProfile() {
       </div>
 
       <header className="bg-gradient-warm rounded-[2rem] p-8 md:p-10 border border-border/60 mb-8">
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+        <div className="flex flex-col md:flex-row gap-10 md:gap-12 items-start md:items-center">
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl grid place-items-center text-white text-3xl font-bold shadow-soft"
             style={{ backgroundColor: school.cover_color }}>
             {school.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
