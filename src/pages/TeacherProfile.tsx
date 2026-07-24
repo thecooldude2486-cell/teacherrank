@@ -140,8 +140,9 @@ export default function TeacherProfile() {
               </>
             ) : (
               <>
-                <div className="text-sm font-semibold text-foreground/80">Not enough reviews yet</div>
-                <div className="text-xs text-muted-foreground mt-2">{stats.count}/{MIN_REVIEWS} approved reviews needed for a ranking</div>
+                <div className="text-sm font-semibold text-foreground/80 mb-3">Not enough reviews yet</div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{stats.count}/{MIN_REVIEWS} approved reviews needed for a ranking</div>
+
               </>
             )}
           </div>
