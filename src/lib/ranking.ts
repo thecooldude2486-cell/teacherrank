@@ -6,7 +6,7 @@
 //   m = smoothing weight (prior strength)
 //   C = prior mean (assumed average across the platform)
 
-export const MIN_REVIEWS = 3;
+export const MIN_REVIEWS = 5;
 const PRIOR_WEIGHT = 10;
 const PRIOR_MEAN = 3.5;
 

@@ -1,5 +1,6 @@
 import { ShieldCheck, BookOpen, Heart, AlertTriangle, Info, MessageSquareHeart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MIN_REVIEWS } from "@/lib/ranking";
 
 export default function Guidelines() {
   return (
@@ -35,7 +36,7 @@ export default function Guidelines() {
         <Card icon={ShieldCheck} title="All reviews are moderated">
           Every teacher and school review is saved as pending and reviewed by a
           moderator before it appears publicly or affects rankings. Rankings are
-          only shown once a teacher or school has at least 3 approved reviews.
+          only shown once a teacher or school has at least {MIN_REVIEWS} approved reviews.
         </Card>
 
         <Card icon={BookOpen} title="One review per teacher or school">

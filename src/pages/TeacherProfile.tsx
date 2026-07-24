@@ -3,6 +3,7 @@ import {
   teachers, reviews, teacherStats, schoolName, teacherGrades,
   TEACHER_RATING_GROUPS, TEACHER_RATING_LABELS,
 } from "@/lib/mockData";
+import { MIN_REVIEWS } from "@/lib/ranking";
 import { StarRating } from "@/components/StarRating";
 import { Flag, MapPin, MessageSquareHeart, ArrowLeft, BookOpen, ShieldAlert } from "lucide-react";
 import { useState } from "react";
@@ -131,7 +132,7 @@ export default function TeacherProfile() {
             </div>
           </div>
           <div className="bg-card rounded-2xl p-5 text-center min-w-[140px] border border-border/60">
-            {stats.count >= 3 ? (
+            {stats.count >= MIN_REVIEWS ? (
               <>
                 <div className="text-4xl font-bold tabular-nums" style={{ fontFamily: "Fraunces, serif" }}>{stats.overall || "—"}</div>
                 <StarRating value={stats.overall} className="justify-center my-1" />
@@ -140,7 +141,7 @@ export default function TeacherProfile() {
             ) : (
               <>
                 <div className="text-sm font-semibold text-foreground/80">Not enough reviews yet</div>
-                <div className="text-xs text-muted-foreground mt-2">{stats.count}/3 approved reviews needed for a ranking</div>
+                <div className="text-xs text-muted-foreground mt-2">{stats.count}/{MIN_REVIEWS} approved reviews needed for a ranking</div>
               </>
             )}
           </div>
