@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MapPin, Users, Flag, ShieldAlert } from "lucide-react";
 import { PrimarySchool, schoolStats } from "@/lib/schoolsData";
+import { MIN_REVIEWS } from "@/lib/ranking";
 import { StarRating } from "@/components/StarRating";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
           <MapPin className="w-3 h-3" /> {school.suburb}, {school.state}
         </p>
 
-        {stats.count >= 3 ? (
+        {stats.count >= MIN_REVIEWS ? (
           <div className="flex items-center gap-2 mb-4">
             <StarRating value={stats.overall} />
             <span className="text-sm font-semibold tabular-nums">{stats.overall || "—"}</span>
@@ -73,7 +74,7 @@ export default function SchoolCard({ school }: { school: PrimarySchool }) {
           </div>
         ) : (
           <div className="mb-4 text-xs font-medium text-muted-foreground inline-flex items-center gap-1">
-            <Users className="w-3 h-3" /> Not enough reviews yet ({stats.count}/3)
+            <Users className="w-3 h-3" /> Not enough reviews yet ({stats.count}/{MIN_REVIEWS})
           </div>
         )}
 

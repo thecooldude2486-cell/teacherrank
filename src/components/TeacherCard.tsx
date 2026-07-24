@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MapPin, MessageSquareHeart, Flag, BookOpen, ShieldAlert } from "lucide-react";
 import { Teacher, schoolName, teacherStats } from "@/lib/mockData";
+import { MIN_REVIEWS } from "@/lib/ranking";
 import { StarRating } from "./StarRating";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -84,7 +85,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
           <span className="text-xs font-medium px-3 py-1 rounded-full bg-secondary text-secondary-foreground">{teacher.class_type}</span>
         </div>
         <div className="flex items-center justify-between pt-4 border-t border-border/60">
-          {stats.count >= 3 ? (
+          {stats.count >= MIN_REVIEWS ? (
             <>
               <div className="flex items-center gap-2">
                 <StarRating value={stats.overall} />
@@ -97,7 +98,7 @@ export default function TeacherCard({ teacher }: { teacher: Teacher }) {
           ) : (
             <span className="text-xs font-medium text-muted-foreground inline-flex items-center gap-1">
               <MessageSquareHeart className="w-3.5 h-3.5" />
-              Not enough reviews yet ({stats.count}/3)
+              Not enough reviews yet ({stats.count}/{MIN_REVIEWS})
             </span>
           )}
         </div>
