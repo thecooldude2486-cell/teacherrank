@@ -6,6 +6,6 @@ export default defineConfig({
   },
 
   vite: {
-    base: "/TeacherRank/",
+    base: "/teacherrank/",
   },
 });
