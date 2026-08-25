@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:static": "vite build --config vite.static.config.ts && cp .output/public/index.html .output/public/404.html && touch .output/public/.nojekyll"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
